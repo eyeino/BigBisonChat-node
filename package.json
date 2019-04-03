@@ -1,0 +1,23 @@
+{
+  "name": "big-bison-chat-node",
+  "version": "1.0.0",
+  "description": "Chat for big bison lovers.",
+  "main": "server.js",
+  "dependencies": {
+    "dotenv": "^7.0.0",
+    "express": "^4.16.4",
+    "mongoose": "^5.4.21",
+    "socket.io": "^2.2.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "keywords": [
+    "bison",
+    "chat"
+  ],
+  "author": "eyeino",
+  "license": "ISC"
+}
