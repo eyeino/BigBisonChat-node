@@ -9,16 +9,16 @@ mongoose.connect(process.env.MONGODB_URI,
 const db = mongoose.connection;
 
 const messageSchema = new Schema({
-  senderId: Number,
-  recipientId: Number,
+  senderId: { type: Number, required: true },
+  recipientId: { type: Number, required: true },
   timestamp: { type: Date, default: Date.now },
-  body: String,
-  conversationId: Number
+  body: { type: String, required: true }
 });
 
 const Message = mongoose.model('Message', messageSchema);
 
-function saveMessage(senderId, recipientId, body, callback) {
+function saveMessage(senderId, recipientId,
+  body, callback) {
   let message = new Message;
   message.senderId = senderId;
   message.recipientId = recipientId;
@@ -26,17 +26,22 @@ function saveMessage(senderId, recipientId, body, callback) {
   message.save(callback);
 }
 
-async function loadNewestMessages(count, senderId, recipientId) {
+async function loadNewestMessages(count,
+  idOne, idTwo) {
   const criteria = {
-    senderId: senderId,
-    recipientId: recipientId
+    senderId: idOne,
+    recipientId: idTwo
   }
   const invertedCriteria = {
-    senderId: recipientId,
-    recipientId: senderId
+    senderId: idTwo,
+    recipientId: idOne
   }
 
-  const query = Message.find({$or:[criteria, invertedCriteria]}).sort('date').limit(count);
+  const query = Message
+    .find({ $or: [criteria, invertedCriteria] })
+    .sort('date')
+    .limit(count);
+
   return await query.exec()
 }
 
