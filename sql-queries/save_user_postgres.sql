@@ -1,0 +1,1 @@
+INSERT INTO users (username, open_id_sub) VALUES ('eyeino', 'auth0|5ca440606abf0410ca989b7a') ON CONFLICT DO NOTHING;
