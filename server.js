@@ -73,7 +73,7 @@ app.get('/conversations/:username', checkJwt, async (req, res) => {
   const otherUserId = otherUserIdResults[0]["user_id"];
 
   const messages = await db.readQuery(db.queryStrings.readChatMessages, [userId, otherUserId]);
-  res.send(messages);
+  res.json(messages);
 })
 
 // send message to a user from a user
