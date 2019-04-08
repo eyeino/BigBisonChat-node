@@ -52,7 +52,7 @@ async function readQuery(queryString, paramList) {
   const client = await pool.connect();
   try {
     const res = await client.query(queryString, paramList);
-    console.log(JSON.stringify(res.rows[0]["array_to_json"], null, 4));
+    // console.log(JSON.stringify(res.rows[0]["array_to_json"], null, 4));
     return res.rows[0]["array_to_json"];
   } finally {
     client.release();

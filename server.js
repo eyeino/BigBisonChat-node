@@ -44,10 +44,23 @@ function decodeSubFromRequestHeader(request) {
 // get list of conversations, with most recent message
 app.get('/conversations/', checkJwt, async (req, res) => {
   const userInfo = decodeSubFromRequestHeader(req);
-  const userIdResults = await db.readQuery(db.queryStrings.readUserId, [userInfo.username]);
-  const userId = userIdResults[0]["user_id"];
-  const conversations = await db.readQuery(db.queryStrings.readConversations, [userId]);
-  res.json(conversations);
+
+  try {
+    const userIdResults = await db.readQuery(db.queryStrings.readUserId, [
+      userInfo.username
+    ]);
+    const userId = userIdResults[0]["user_id"];
+    const conversations = await db.readQuery(
+      db.queryStrings.readConversations,
+      [userId]
+    );
+    res.json(conversations);
+    return
+  } catch {
+    await db.insertQuery(db.queryStrings.insertUser, [userInfo.username, userInfo.sub, userInfo.picture])
+    res.redirect(req.originalUrl);
+    return
+  }
 })
 
 // get list of messages between two users
