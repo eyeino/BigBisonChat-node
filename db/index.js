@@ -22,15 +22,35 @@ pool.on('error', (err, client) => {
 const queryStrings = {
   // parameter $1: current user's id
   readConversations: `SELECT array_to_json(array_agg(row_to_json(t))) FROM
-    (SELECT recipient as other_username, recipient_id as other_user_id, user_id, username, body, created_at FROM (SELECT username AS recipient, recipient as recipient_id, sender as sender_id, body, created_at FROM users INNER JOIN (
-    SELECT DISTINCT ON (sum) recipient, sender, body
-    FROM (
-    SELECT message_id, created_at, sender, recipient, body, sender + recipient AS sum
-    FROM (
-    SELECT * FROM messages
-    WHERE ((messages.sender = $1) OR (messages.recipient = $1))) AS relevant_messages) AS summed_messages
-    ORDER BY sum, created_at DESC) AS conversations ON conversations.recipient = users.user_id) AS result
-    LEFT JOIN (SELECT username, user_id FROM users) AS small_users ON sender_id = small_users.user_id) t;`,
+    (WITH relevant_messages AS (
+      SELECT * FROM messages WHERE ((messages.sender = $1) OR (messages.recipient = $1))),
+    
+    summed_messages AS (
+      SELECT sender + recipient AS sum, * FROM relevant_messages
+    ),
+    
+    conversations AS (
+      SELECT DISTINCT ON (sum) * FROM summed_messages
+      ORDER BY (sum), created_at DESC
+    ),
+    
+    user_sent AS (
+      SELECT message_id, body, username as other_username, (sent.created_at) FROM
+      (SELECT * FROM conversations
+      WHERE conversations.sender = $1) AS sent
+      LEFT JOIN users ON sent.recipient = users.user_id
+    ),
+    
+    user_received AS (
+      SELECT message_id, body, username as other_username, (received.created_at) FROM
+      (SELECT * FROM conversations
+      WHERE conversations.recipient = $1) AS received
+      LEFT JOIN users ON received.sender = users.user_id
+    )
+    
+    SELECT * FROM user_sent
+    UNION ALL
+    SELECT * FROM user_received) t;`,
 
   // parameter $1: current user's id, $2: id of other user in chat
   readChatMessages: `SELECT array_to_json(array_agg(row_to_json(t))) FROM
