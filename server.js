@@ -31,6 +31,8 @@ const server = require('http').Server(app);
 app.use(express.json());
 app.use(cors());
 
+// TODO: change this name.. decodeSub is a bit of a misnomer
+// since it does more than that
 function decodeSubFromRequestHeader(request) {
   const jwt = request.header('authorization').split(" ")[1];
   const decodedJwt = jwtDecode(jwt);
@@ -42,7 +44,7 @@ function decodeSubFromRequestHeader(request) {
 }
 
 // get list of conversations, with most recent message
-app.get('/conversations/', checkJwt, async (req, res) => {
+app.get('/conversations', checkJwt, async (req, res) => {
   const userInfo = decodeSubFromRequestHeader(req);
 
   try {
@@ -56,7 +58,7 @@ app.get('/conversations/', checkJwt, async (req, res) => {
     );
     res.json(conversations);
     return
-  } catch {
+  } catch(err) {
     await db.insertQuery(db.queryStrings.insertUser, [userInfo.username, userInfo.sub, userInfo.picture])
     res.redirect(req.originalUrl);
     return

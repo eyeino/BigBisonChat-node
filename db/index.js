@@ -22,19 +22,20 @@ pool.on('error', (err, client) => {
 const queryStrings = {
   // parameter $1: current user's id
   readConversations: `SELECT array_to_json(array_agg(row_to_json(t))) FROM
-  (SELECT username AS recipient, recipient as recipientId, sender as senderId, body, created_at FROM users INNER JOIN (
-  SELECT DISTINCT ON (sum) recipient, sender, body
-  FROM (
-  SELECT message_id, created_at, sender, recipient, body, sender + recipient AS sum
-  FROM (
-  SELECT * FROM messages
-  WHERE ((messages.sender = $1) OR (messages.recipient = $1))) AS relevant_messages) AS summed_messages
-  ORDER BY sum, created_at DESC) AS conversations ON conversations.recipient = users.user_id) t;`,
+    (SELECT recipient as other_username, recipient_id as other_user_id, user_id, username, body, created_at FROM (SELECT username AS recipient, recipient as recipient_id, sender as sender_id, body, created_at FROM users INNER JOIN (
+    SELECT DISTINCT ON (sum) recipient, sender, body
+    FROM (
+    SELECT message_id, created_at, sender, recipient, body, sender + recipient AS sum
+    FROM (
+    SELECT * FROM messages
+    WHERE ((messages.sender = $1) OR (messages.recipient = $1))) AS relevant_messages) AS summed_messages
+    ORDER BY sum, created_at DESC) AS conversations ON conversations.recipient = users.user_id) AS result
+    LEFT JOIN (SELECT username, user_id FROM users) AS small_users ON sender_id = small_users.user_id) t;`,
 
   // parameter $1: current user's id, $2: id of other user in chat
   readChatMessages: `SELECT array_to_json(array_agg(row_to_json(t))) FROM
-  (SELECT body, created_at, sender, recipient FROM messages WHERE ((messages.recipient = $1 AND messages.sender = $2) OR (messages.sender = $1 AND messages.recipient = $2))
-  ORDER BY created_at ASC LIMIT 20) t;`,
+  (SELECT body, created_at, sender, recipient, username AS sender_username FROM (SELECT body, created_at, sender, recipient FROM messages WHERE ((messages.recipient = $1 AND messages.sender = $2) OR (messages.sender = $1 AND messages.recipient = $2))
+ORDER BY created_at ASC LIMIT 20) AS conversations LEFT JOIN (SELECT username, user_id FROM users) AS sub_users ON (conversations.sender = sub_users.user_id)) t;`,
 
   // parameter $1: current user's username
   readUserId: `SELECT array_to_json(array_agg(row_to_json(t))) FROM (
