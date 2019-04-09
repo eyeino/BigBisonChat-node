@@ -92,6 +92,7 @@ app.post('/conversations/:username', checkJwt, async (req, res) => {
       db.queryStrings.readUserId,
       [req.params.username]
     );
+  
     const otherUserId = otherUserIdResults[0]["user_id"];
 
     const messageBody = req.body.messageBody;
@@ -103,7 +104,8 @@ app.post('/conversations/:username', checkJwt, async (req, res) => {
     ]);
     res.sendStatus(200);
     return
-  } catch {
+  } catch(err) {
+    console.log(err)
     res.sendStatus(400);
     return
   }

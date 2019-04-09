@@ -54,8 +54,25 @@ const queryStrings = {
 
   // parameter $1: current user's id, $2: id of other user in chat
   readChatMessages: `SELECT array_to_json(array_agg(row_to_json(t))) FROM
-  (SELECT body, created_at, sender, recipient, username AS sender_username, message_id FROM (SELECT body, created_at, sender, recipient, message_id FROM messages WHERE ((messages.recipient = $1 AND messages.sender = $2) OR (messages.sender = $1 AND messages.recipient = $2))
-ORDER BY created_at ASC LIMIT 20) AS conversations LEFT JOIN (SELECT username, user_id FROM users) AS sub_users ON (conversations.sender = sub_users.user_id)) t;`,
+
+  (WITH conversation AS (
+    SELECT *
+    FROM messages
+    WHERE (messages.recipient = $1 AND messages.sender = $2)
+    OR (messages.sender = $1 AND messages.recipient = $2)
+    ORDER BY created_at DESC LIMIT 20
+  )
+  
+  SELECT
+    body,
+    conversation.created_at,
+    username as sender_username,
+    sender,
+    recipient,
+    message_id
+  FROM conversation LEFT JOIN users
+  ON conversation.sender = users.user_id
+  ORDER BY created_at ASC) t;`,
 
   // parameter $1: current user's username
   readUserId: `SELECT array_to_json(array_agg(row_to_json(t))) FROM (
