@@ -35,14 +35,14 @@ const queryStrings = {
     ),
     
     user_sent AS (
-      SELECT message_id, body, username as other_username, (sent.created_at) FROM
+      SELECT message_id, body, username as other_username, (sent.created_at), avatar_url FROM
       (SELECT * FROM conversations
       WHERE conversations.sender = $1) AS sent
       LEFT JOIN users ON sent.recipient = users.user_id
     ),
     
     user_received AS (
-      SELECT message_id, body, username as other_username, (received.created_at) FROM
+      SELECT message_id, body, username as other_username, (received.created_at), avatar_url FROM
       (SELECT * FROM conversations
       WHERE conversations.recipient = $1) AS received
       LEFT JOIN users ON received.sender = users.user_id
