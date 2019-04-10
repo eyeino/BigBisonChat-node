@@ -50,7 +50,8 @@ const queryStrings = {
     
     SELECT * FROM user_sent
     UNION ALL
-    SELECT * FROM user_received) t;`,
+    SELECT * FROM user_received
+    ORDER BY created_at DESC) t;`,
 
   // parameter $1: current user's id, $2: id of other user in chat
   readChatMessages: `SELECT array_to_json(array_agg(row_to_json(t))) FROM
