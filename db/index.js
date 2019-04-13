@@ -79,6 +79,10 @@ const queryStrings = {
   readUserId: `SELECT array_to_json(array_agg(row_to_json(t))) FROM (
     SELECT user_id FROM users WHERE username = $1) t;`,
 
+  // parameter $1: search query for username
+  readUserSearchResults: `SELECT array_to_json(array_agg(row_to_json(t))) FROM (
+    SELECT user_id, username FROM users WHERE username LIKE $1 LIMIT 10) t;`,
+
   // parameter $1: username, $2: the entire Open ID sub value (unique value to identify user supplied in JWT during authentication)
   insertUser: `INSERT INTO users (username, open_id_sub, avatar_url) VALUES ($1, $2, $3) ON CONFLICT DO NOTHING;`,
 

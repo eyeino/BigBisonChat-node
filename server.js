@@ -111,6 +111,13 @@ app.post('/conversations/:username', checkJwt, async (req, res) => {
   }
 })
 
+app.get('/search/users/:query', checkJwt, async (req, res) => {
+  const usernameQuery = req.params.query;
+
+  const usernameResults = await db.readQuery(db.queryStrings.readUserSearchResults, [usernameQuery + '%']);
+  res.json(usernameResults);
+});
+
 app.get("*", (req, res) => {
   res.sendStatus(404);
 })
