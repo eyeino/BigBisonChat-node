@@ -87,8 +87,29 @@ const queryStrings = {
   insertUser: `INSERT INTO users (username, open_id_sub, avatar_url) VALUES ($1, $2, $3) ON CONFLICT DO NOTHING;`,
 
   // parameter $1: sender id, $2: recipient id, $3: body of message
-  insertMessage: `INSERT INTO messages(sender, recipient, body)
-  VALUES ($1, $2, $3);`
+  insertMessageSilently: `INSERT INTO messages(sender, recipient, body)
+  VALUES ($1, $2, $3);`,
+
+  // parameter $1: sender id, $2: recipient id, $3: body of message
+  insertMessageAndReturnIt: `WITH message AS (
+    INSERT INTO messages(sender, recipient, body)
+    VALUES ($1, $2, $3)
+    RETURNING *
+  ),
+  
+  full_message AS (
+    SELECT
+      body,
+      message.created_at,
+      username as sender_username,
+      sender,
+      recipient,
+      message_id
+    FROM message LEFT JOIN users
+    ON message.sender = users.user_id
+  )
+  
+  SELECT row_to_json(t) FROM full_message t;`
 }
 
 async function readQuery(queryString, paramList) {

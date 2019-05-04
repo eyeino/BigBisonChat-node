@@ -25,11 +25,11 @@ const checkJwt = jwt({
 // server initialization
 const app = express();
 const server = require('http').Server(app);
-// const io = require('socket.io')(server);
 
 // middleware
 app.use(express.json());
 app.use(cors());
+app.use(checkJwt);
 
 // TODO: change this name.. decodeSub is a bit of a misnomer
 // since it does more than that
@@ -43,8 +43,13 @@ function decodeSubFromRequestHeader(request) {
   }
 }
 
+// create unique and deterministic event name for a conversation
+function determineEventNameFromUsernames(username1, username2) {
+  return [username1, username2].sort().join('-');
+};
+
 // get list of conversations, with most recent message
-app.get('/conversations', checkJwt, async (req, res) => {
+app.get('/conversations', async (req, res) => {
   const userInfo = decodeSubFromRequestHeader(req);
 
   try {
@@ -56,6 +61,7 @@ app.get('/conversations', checkJwt, async (req, res) => {
       db.queryStrings.readConversations,
       [userId]
     );
+
     res.json(conversations);
     return
   } catch(err) {
@@ -66,7 +72,8 @@ app.get('/conversations', checkJwt, async (req, res) => {
 })
 
 // get list of messages between two users
-app.get('/conversations/:username', checkJwt, async (req, res) => {
+app.get('/conversations/:username', async (req, res) => {
+
   const userInfo = decodeSubFromRequestHeader(req);
   const userIdResults = await db.readQuery(db.queryStrings.readUserId, [userInfo.username]);
   const userId = userIdResults[0]["user_id"];
@@ -79,8 +86,7 @@ app.get('/conversations/:username', checkJwt, async (req, res) => {
 })
 
 // send message to a user from a user
-app.post('/conversations/:username', checkJwt, async (req, res) => {
-  
+app.post("/conversations/:username", async (req, res) => {
   try {
     const userInfo = decodeSubFromRequestHeader(req);
     const userIdResults = await db.readQuery(db.queryStrings.readUserId, [
@@ -88,46 +94,60 @@ app.post('/conversations/:username', checkJwt, async (req, res) => {
     ]);
     const userId = userIdResults[0]["user_id"];
 
-    const otherUserIdResults = await db.readQuery(
-      db.queryStrings.readUserId,
-      [req.params.username]
-    );
-  
+    const otherUserIdResults = await db.readQuery(db.queryStrings.readUserId, [
+      req.params.username
+    ]);
+
     const otherUserId = otherUserIdResults[0]["user_id"];
 
     const messageBody = req.body.messageBody;
 
-    await db.insertQuery(db.queryStrings.insertMessage, [
+    const insertedMessageResponse = await db.insertQuery(db.queryStrings.insertMessageAndReturnIt, [
       userId,
       otherUserId,
       messageBody
     ]);
-    res.sendStatus(200);
-    return
-  } catch(err) {
-    console.log(err)
-    res.sendStatus(400);
-    return
-  }
-})
 
-app.get('/search/users/:query', checkJwt, async (req, res) => {
+    const eventName = determineEventNameFromUsernames(userInfo.username, req.params.username);
+
+    app.emit(eventName, insertedMessageResponse.rows[0]['row_to_json']);
+
+    res.sendStatus(200);
+    return;
+  } catch (err) {
+    res.sendStatus(400);
+    return;
+  }
+});
+
+app.get('/search/users/:query', async (req, res) => {
   const usernameQuery = req.params.query;
 
   const usernameResults = await db.readQuery(db.queryStrings.readUserSearchResults, [usernameQuery + '%']);
   res.json(usernameResults);
 });
 
+app.get('/eventstream/:otherusername', (req, res) => {
+  const username = decodeSubFromRequestHeader(req).username;
+  const eventName = determineEventNameFromUsernames(username, req.params.otherusername);
+
+  res.set({
+		'Content-Type': 'text/event-stream',
+		'Cache-Control': 'no-cache',
+		'Connection': 'keep-alive'
+  });
+
+  app.removeAllListeners(eventName);
+  
+  app.on(eventName, messageData => {
+    console.log(eventName, `triggered in /eventstream/${req.params.otherusername}`)
+    res.write(`data: ${JSON.stringify(messageData)}\n\n`);
+	});
+});
+
 app.get("*", (req, res) => {
   res.sendStatus(404);
-})
-
-// io.on('connection', socket => {
-//   socket.on('newMessage', messageData => {
-    
-//     console.log(messageData)
-//   });
-// });
+});
 
 port = process.env.PORT || 8080;
 server.listen(port, async () => {
