@@ -127,6 +127,8 @@ app.get('/search/users/:query', async (req, res) => {
   res.json(usernameResults);
 });
 
+let handlers = {};
+
 app.get('/eventstream/:otherusername', (req, res) => {
   const username = decodeSubFromRequestHeader(req).username;
   const eventName = determineEventNameFromUsernames(username, req.params.otherusername);
@@ -137,12 +139,18 @@ app.get('/eventstream/:otherusername', (req, res) => {
 		'Connection': 'keep-alive'
   });
 
-  app.removeAllListeners(eventName);
-  
-  app.on(eventName, messageData => {
-    console.log(eventName, `triggered in /eventstream/${req.params.otherusername}`)
+  if (handlers.hasOwnProperty(username)) {
+    app.removeListener(eventName, handlers[username]);
+  };
+
+  handlers[username] = (messageData) => {
+    console.log(eventName, `triggered in /eventstream/${req.params.otherusername}`);
     res.write(`data: ${JSON.stringify(messageData)}\n\n`);
-	});
+  }
+  
+  app.on(eventName, handlers[username]);
+  console.log('listeners array is now:', app.listeners(eventName));
+  console.log(handlers)
 });
 
 app.get("*", (req, res) => {
