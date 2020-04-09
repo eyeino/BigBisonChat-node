@@ -62,17 +62,30 @@ const queryStrings = {
     WHERE (messages.recipient = $1 AND messages.sender = $2)
     OR (messages.sender = $1 AND messages.recipient = $2)
     ORDER BY created_at DESC LIMIT 20
-  )
+  ),
   
+  almost_full_message AS (
+	  SELECT
+	    body,
+	    conversation.created_at,
+	    username as sender_username,
+	    sender,
+	    recipient,
+	    message_id
+	  FROM conversation
+	  LEFT JOIN users ON conversation.sender = users.user_id
+  )
+
   SELECT
-    body,
-    conversation.created_at,
-    username as sender_username,
+	  body,
+	  almost_full_message.created_at,
+    sender_username,
+    username as recipient_username,
     sender,
     recipient,
-    message_id
-  FROM conversation LEFT JOIN users
-  ON conversation.sender = users.user_id
+    message_id	
+  FROM almost_full_message
+  LEFT JOIN users ON almost_full_message.recipient = users.user_id
   ORDER BY created_at ASC) t;`,
 
   // parameter $1: current user's username
@@ -97,7 +110,7 @@ const queryStrings = {
     RETURNING *
   ),
   
-  full_message AS (
+  almost_full_message AS (
     SELECT
       body,
       message.created_at,
@@ -105,8 +118,22 @@ const queryStrings = {
       sender,
       recipient,
       message_id
-    FROM message LEFT JOIN users
-    ON message.sender = users.user_id
+    FROM message
+    LEFT JOIN users ON message.sender = users.user_id
+  ),
+  
+  full_message AS (
+    SELECT
+      body,
+      almost_full_message.created_at,
+      sender_username,
+      username as recipient_username,
+      sender,
+      recipient,
+      message_id
+    FROM almost_full_message
+    LEFT JOIN users
+    ON almost_full_message.recipient = users.user_id
   )
   
   SELECT row_to_json(t) FROM full_message t;`
