@@ -153,7 +153,11 @@ app.get('/eventstream/:otherusername', (req, res) => {
   console.log(handlers)
 });
 
-app.get("*", (req, res) => {
+app.get("/ping", (_req, res) => {
+  res.sendStatus(200);
+});
+
+app.get("*", (_req, res) => {
   res.sendStatus(404);
 });
 
