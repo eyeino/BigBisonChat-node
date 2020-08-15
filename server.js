@@ -27,9 +27,20 @@ const app = express();
 const server = require('http').Server(app);
 
 // middleware
+const ignoreFavicon = (req, res, next) => {
+  if (req.originalUrl === "/favicon.ico") {
+    res.status(204).end();
+  } else {
+    next();
+  }
+}
+
+const excludedRoutes = [/\/((?!ping).)*/];
+
 app.use(express.json());
 app.use(cors());
-app.use(checkJwt);
+app.use(ignoreFavicon);
+app.use(excludedRoutes, checkJwt);
 
 // TODO: change this name.. decodeSub is a bit of a misnomer
 // since it does more than that
