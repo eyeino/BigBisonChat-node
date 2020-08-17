@@ -154,7 +154,7 @@ async function insertQuery(queryString, paramList) {
   const client = await pool.connect();
   try {
     const res = await client.query(queryString, paramList);
-    console.log(res);
+    // console.log(res);
     return res;
   } finally {
     client.release();
