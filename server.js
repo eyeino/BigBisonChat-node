@@ -30,6 +30,7 @@ const corsOptions = {
 // server initialization
 const app = express();
 const server = require('http').Server(app);
+const io = require('socket.io').listen(server);
 
 // middleware
 const ignoreFavicon = (req, res, next) => {
@@ -124,9 +125,7 @@ app.post("/conversations/:username", async (req, res) => {
       messageBody
     ]);
 
-    const eventName = determineEventNameFromUsernames(userInfo.username, req.params.username);
-
-    app.emit(eventName, insertedMessageResponse.rows[0]['row_to_json']);
+    io.emit(req.header('authorization').split(" ")[1], insertedMessageResponse.rows[0]['row_to_json']);
 
     res.sendStatus(200);
     return;
@@ -144,27 +143,6 @@ app.get('/search/users/:query', async (req, res) => {
 });
 
 let handlers = {};
-
-app.get('/eventstream/:otherusername', (req, res) => {
-  const username = decodeSubFromRequestHeader(req).username;
-  const eventName = determineEventNameFromUsernames(username, req.params.otherusername);
-
-  res.set({
-		'Content-Type': 'text/event-stream',
-		'Cache-Control': 'no-cache',
-    'Connection': 'keep-alive'
-  });
-
-  if (handlers.hasOwnProperty(username)) {
-    app.removeListener(eventName, handlers[username]);
-  };
-
-  handlers[username] = (messageData) => {
-    res.write(`data: ${JSON.stringify(messageData)}\n\n`);
-  }
-  
-  app.on(eventName, handlers[username]);
-});
 
 app.get("/ping", (_req, res) => {
   res.sendStatus(200);
