@@ -22,6 +22,11 @@ const checkJwt = jwt({
   algorithms: ['RS256']
 });
 
+const corsOptions = {
+  origin: process.env.PORT ? 'https://chat.bigbison.co' : 'http://localhost:3000',
+  optionsSuccessStatus: 200
+};
+
 // server initialization
 const app = express();
 const server = require('http').Server(app);
@@ -38,7 +43,7 @@ const ignoreFavicon = (req, res, next) => {
 const excludedRoutes = [/\/((?!ping).)*/];
 
 app.use(express.json());
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(ignoreFavicon);
 app.use(excludedRoutes, checkJwt);
 
@@ -147,8 +152,7 @@ app.get('/eventstream/:otherusername', (req, res) => {
   res.set({
 		'Content-Type': 'text/event-stream',
 		'Cache-Control': 'no-cache',
-    'Connection': 'keep-alive',
-    'Access-Control-Allow-Origin': process.env.PORT ? 'https://chat.bigbison.co' : 'http://localhost:3000'
+    'Connection': 'keep-alive'
   });
 
   if (handlers.hasOwnProperty(username)) {
