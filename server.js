@@ -148,7 +148,7 @@ app.get('/eventstream/:otherusername', (req, res) => {
 		'Content-Type': 'text/event-stream',
 		'Cache-Control': 'no-cache',
     'Connection': 'keep-alive',
-    'Access-Control-Allow-Origin': process.env.PORT ? 'https://chat.bigbison.co/' : 'http://localhost:3000/'
+    'Access-Control-Allow-Origin': process.env.PORT ? 'https://chat.bigbison.co/' : 'http://localhost:3000'
   });
 
   if (handlers.hasOwnProperty(username)) {
