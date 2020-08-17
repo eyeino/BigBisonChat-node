@@ -147,7 +147,8 @@ app.get('/eventstream/:otherusername', (req, res) => {
   res.set({
 		'Content-Type': 'text/event-stream',
 		'Cache-Control': 'no-cache',
-		'Connection': 'keep-alive'
+    'Connection': 'keep-alive',
+    'Access-Control-Allow-Origin': process.env.PORT ? 'https://chat.bigbison.co/' : 'http://localhost:3000/'
   });
 
   if (handlers.hasOwnProperty(username)) {
@@ -155,13 +156,10 @@ app.get('/eventstream/:otherusername', (req, res) => {
   };
 
   handlers[username] = (messageData) => {
-    console.log(eventName, `triggered in /eventstream/${req.params.otherusername}`);
     res.write(`data: ${JSON.stringify(messageData)}\n\n`);
   }
   
   app.on(eventName, handlers[username]);
-  console.log('listeners array is now:', app.listeners(eventName));
-  console.log(handlers)
 });
 
 app.get("/ping", (_req, res) => {
