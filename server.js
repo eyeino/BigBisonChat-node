@@ -1,8 +1,8 @@
 const express = require('express');
 const cors = require('cors');
 
-const events = require('events');
-const em = new events.EventEmitter();
+const EventEmitter = require('eventemitter3');
+const em = new EventEmitter();
 
 const db = require('./db/index');
 
