@@ -1,6 +1,9 @@
 const express = require('express');
 const cors = require('cors');
 
+const events = require('events');
+const em = new events.EventEmitter();
+
 const db = require('./db/index');
 
 // JWT for authentication with Auth0
@@ -125,7 +128,9 @@ app.post("/conversations/:username", async (req, res) => {
       messageBody
     ]);
 
-    io.emit(req.header('authorization').split(" ")[1], insertedMessageResponse.rows[0]['row_to_json']);
+    const eventName = determineEventNameFromUsernames(userInfo.username, req.params.username);
+
+    em.emit('post', eventName, insertedMessageResponse.rows[0]['row_to_json']);
 
     res.sendStatus(200);
     return;
@@ -142,8 +147,6 @@ app.get('/search/users/:query', async (req, res) => {
   res.json(usernameResults);
 });
 
-let handlers = {};
-
 app.get("/ping", (_req, res) => {
   res.sendStatus(200);
 });
@@ -151,6 +154,12 @@ app.get("/ping", (_req, res) => {
 app.get("*", (_req, res) => {
   res.sendStatus(404);
 });
+
+io.on('connection', socket => {
+  em.on('post', (eventName, payload) => {
+    socket.emit(eventName, payload);
+  });
+})
 
 port = process.env.PORT || 8080;
 server.listen(port, async () => {
