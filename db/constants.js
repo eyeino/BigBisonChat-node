@@ -52,7 +52,7 @@ const createUsersTableQuery = `
         email character varying(50) COLLATE pg_catalog."default",
         first_name character varying(30) COLLATE pg_catalog."default",
         last_name character varying(30) COLLATE pg_catalog."default",
-        open_id_sub character varying(2000) COLLATE pg_catalog."default" NOT NULL,
+        open_id_sub character varying(2000) COLLATE pg_catalog."default",
         user_id integer NOT NULL DEFAULT nextval('users_user_id_seq'::regclass),
         username character varying(30) COLLATE pg_catalog."default" NOT NULL,
         CONSTRAINT users_pkey PRIMARY KEY (user_id)
@@ -78,6 +78,20 @@ const createMessagesTableQuery = `
         created_at timestamp with time zone default current_timestamp(2),
         CONSTRAINT messages_pkey PRIMARY KEY (message_id)
     )
+`;
+
+const addMessageSeedDataQuery = `
+    COPY messages(message_id, created_at, body, sender, recipient)
+    FROM '${__dirname}/seed/messages-example.csv'
+    DELIMITER ','
+    CSV HEADER;
+`;
+
+const addUserSeedDataQuery = `
+    COPY users(user_id, username, email, first_name, last_name, avatar_url, created_at, open_id_sub)
+    FROM '${__dirname}/seed/users-example.csv'
+    DELIMITER ','
+    CSV HEADER;
 `;
 
 const initDatabase = (pool, callback) => pool.query(
@@ -106,6 +120,7 @@ const initUsers = pool => pool.query(
             if (!exists) {
                 await pool.query(createUsersSequenceQuery);
                 await pool.query(createUsersTableQuery);
+                await pool.query(addUserSeedDataQuery);
                 console.log('users table initialized');
             } else {
                 console.log('users table exists')
@@ -122,6 +137,7 @@ const initMessages = pool => pool.query(
             if (!exists) {
                 await pool.query(createMessagesSequenceQuery);
                 await pool.query(createMessagesTableQuery);
+                await pool.query(addMessageSeedDataQuery);
                 console.log('messages table initialized');
             } else {
                 console.log('messages table exists')
