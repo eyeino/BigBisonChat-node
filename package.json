@@ -11,18 +11,23 @@
     "express-jwt": "^6.0.0",
     "jwks-rsa": "^1.7.0",
     "jwt-decode": "^2.2.0",
-    "pg": "^7.18.2",
+    "pg": "^8.5.1",
     "socket.io": "^2.3.0"
   },
   "devDependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+    "start": "node server.js",
+    "db:setup": "node db/setup.js",
+    "db:drop": "node db/drop.js"
   },
   "keywords": [
     "bison",
     "chat"
   ],
   "author": "eyeino",
-  "license": "ISC"
+  "license": "ISC",
+  "volta": {
+    "node": "14.15.1"
+  }
 }
