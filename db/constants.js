@@ -47,12 +47,12 @@ const createUsersSequenceQuery = `
 const createUsersTableQuery = `
     CREATE TABLE public.users
     (
-        avatar_url character varying(50) COLLATE pg_catalog."default",
+        avatar_url character varying(255) COLLATE pg_catalog."default",
         created_at timestamp with time zone default current_timestamp(2),
-        email character varying(50) COLLATE pg_catalog."default" NOT NULL,
+        email character varying(50) COLLATE pg_catalog."default",
         first_name character varying(30) COLLATE pg_catalog."default",
         last_name character varying(30) COLLATE pg_catalog."default",
-        open_id_sub character varying(20) COLLATE pg_catalog."default" NOT NULL,
+        open_id_sub character varying(2000) COLLATE pg_catalog."default" NOT NULL,
         user_id integer NOT NULL DEFAULT nextval('users_user_id_seq'::regclass),
         username character varying(30) COLLATE pg_catalog."default" NOT NULL,
         CONSTRAINT users_pkey PRIMARY KEY (user_id)
