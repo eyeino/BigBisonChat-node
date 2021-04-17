@@ -4,7 +4,7 @@ const cors = require('cors');
 const EventEmitter = require('eventemitter3');
 const em = new EventEmitter();
 
-const db = require('../db/index');
+const db = require('./db');
 
 // JWT for authentication with Auth0
 const jwt = require('express-jwt');
