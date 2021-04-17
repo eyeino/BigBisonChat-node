@@ -1,0 +1,4 @@
+user_id,username,email,first_name,last_name,avatar_url,created_at,open_id_sub
+2,wilhelm,wilhelm@bab.edu,Wilhelm,Luigi-Holtz,,2019-04-05 17:31:24.179901,wilhelmOpenId
+3,sharon,sharon@gmail.com,Sharon,Stuart,,2019-04-05 17:34:22.87189,sharonOpenId
+1,rodrigo,rod3@aim.com,Rodrigo,Macco,,2019-04-05 17:30:55.949663,rodrigoOpenId

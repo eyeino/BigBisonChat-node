@@ -2,7 +2,7 @@
   "name": "big-bison-chat-node",
   "version": "1.0.0",
   "description": "Chat for big bison lovers.",
-  "main": "server.js",
+  "main": "app/server.js",
   "dependencies": {
     "cors": "^2.8.5",
     "dotenv": "^7.0.0",
@@ -17,7 +17,7 @@
   "devDependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js",
+    "start": "node app/server.js",
     "db:setup": "node db/setup.js",
     "db:drop": "node db/drop.js"
   },
