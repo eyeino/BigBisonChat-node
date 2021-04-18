@@ -14,6 +14,7 @@ import {
   makeUser,
   getConversation,
   getUserId,
+  sendMessage
 } from "./db";
 
 // JWT for authentication with Auth0
@@ -110,18 +111,13 @@ app.post("/conversations/:username", async (req, res) => {
     const userInfo = decodeSubFromRequestHeader(req);
     const userId = await getUserId(userInfo.username)
     const otherUserId = await getUserId(req.params.username);
-
     const messageBody = req.body.messageBody;
 
-    const insertedMessageResponse = await insertQuery(queryStrings.insertMessageAndReturnIt, [
-      userId,
-      otherUserId,
-      messageBody
-    ]);
+    const insertedMessage = await sendMessage(userId, otherUserId, messageBody);
 
     const eventName = determineEventNameFromUsernames(userInfo.username, req.params.username);
 
-    em.emit('post', eventName, insertedMessageResponse.rows[0]['row_to_json']);
+    em.emit('post', eventName, insertedMessage);
 
     res.sendStatus(200);
     return;

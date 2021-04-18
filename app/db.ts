@@ -3,6 +3,7 @@ import { findConversation } from "./queries/conversation.queries";
 import { findConversationsByUserId } from "./queries/conversations.queries";
 import { createUser } from "./queries/createUser.queries";
 import { findUserIdByUsername } from "./queries/findUserId.queries";
+import { insertMessage } from "./queries/insertMessage.queries";
 
 require('dotenv').config();
 
@@ -30,45 +31,6 @@ export const queryStrings = {
   // parameter $1: search query for username
   readUserSearchResults: `SELECT array_to_json(array_agg(row_to_json(t))) FROM (
     SELECT user_id, username FROM users WHERE username LIKE $1 LIMIT 10) t;`,
-
-  // parameter $1: sender id, $2: recipient id, $3: body of message
-  insertMessageSilently: `INSERT INTO messages(sender, recipient, body)
-  VALUES ($1, $2, $3);`,
-
-  // parameter $1: sender id, $2: recipient id, $3: body of message
-  insertMessageAndReturnIt: `WITH message AS (
-    INSERT INTO messages(sender, recipient, body)
-    VALUES ($1, $2, $3)
-    RETURNING *
-  ),
-  
-  almost_full_message AS (
-    SELECT
-      body,
-      message.created_at,
-      username as sender_username,
-      sender,
-      recipient,
-      message_id
-    FROM message
-    LEFT JOIN users ON message.sender = users.user_id
-  ),
-  
-  full_message AS (
-    SELECT
-      body,
-      almost_full_message.created_at,
-      sender_username,
-      username as recipient_username,
-      sender,
-      recipient,
-      message_id
-    FROM almost_full_message
-    LEFT JOIN users
-    ON almost_full_message.recipient = users.user_id
-  )
-  
-  SELECT row_to_json(t) FROM full_message t;`
 }
 
 export async function readQuery(queryString, paramList) {
@@ -131,6 +93,20 @@ export async function getUserId(username: string) {
   client.release();
 
   return id[0].user_id;
+}
+
+export async function sendMessage(sender: number, recipient: number, body: string) {
+  const client = await pool.connect();
+  
+  const id = await insertMessage.run({
+    body,
+    recipient,
+    sender
+  }, client);
+  
+  client.release();
+  
+  return id[0];
 }
 
 export async function insertQuery(queryString, paramList) {
