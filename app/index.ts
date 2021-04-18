@@ -7,7 +7,6 @@ import * as EventEmitter from 'eventemitter3';
 const em = new EventEmitter();
 
 import {
-  readQuery,
   getConversations,
   makeUser,
   getConversation,

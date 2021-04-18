@@ -28,16 +28,6 @@ pool.on('error', (err, client) => {
   process.exit(-1);
 })
 
-export async function readQuery(queryString, paramList) {
-  const client = await pool.connect();
-  try {
-    const res = await client.query(queryString, paramList);
-    return res.rows[0]["array_to_json"];
-  } finally {
-    client.release();
-  }
-}
-
 export async function getConversations(userId: number) {
   const client = await pool.connect();
 
@@ -114,15 +104,4 @@ export async function searchUsers(query: string) {
   client.release();
 
   return results;
-}
-
-export async function insertQuery(queryString, paramList) {
-  const client = await pool.connect();
-  try {
-    const res = await client.query(queryString, paramList);
-    // console.log(res);
-    return res;
-  } finally {
-    client.release();
-  }
 }
