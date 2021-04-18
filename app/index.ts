@@ -13,6 +13,7 @@ import {
   getConversations,
   makeUser,
   getConversation,
+  getUserId,
 } from "./db";
 
 // JWT for authentication with Auth0
@@ -83,10 +84,7 @@ app.get('/conversations', async (req, res) => {
 
   try {
     await makeUser(userInfo.username, userInfo.sub, userInfo.picture);
-    const userIdResults = await readQuery(queryStrings.readUserId, [
-      userInfo.username
-    ]);
-    const userId = userIdResults[0]["user_id"];
+    const userId = await getUserId(userInfo.username);
     const conversations = await getConversations(userId);
 
     res.json(conversations);
@@ -98,13 +96,9 @@ app.get('/conversations', async (req, res) => {
 
 // get list of messages between two users
 app.get('/conversations/:username', async (req, res) => {
-
   const userInfo = decodeSubFromRequestHeader(req);
-  const userIdResults = await readQuery(queryStrings.readUserId, [userInfo.username]);
-  const userId = userIdResults[0]["user_id"];
-  
-  const otherUserIdResults = await readQuery(queryStrings.readUserId, [req.params.username]);
-  const otherUserId = otherUserIdResults[0]["user_id"];
+  const userId = await getUserId(userInfo.username);
+  const otherUserId = await getUserId(req.params.username);
 
   const messages = await getConversation(userId, otherUserId);
   res.json(messages);
@@ -114,16 +108,8 @@ app.get('/conversations/:username', async (req, res) => {
 app.post("/conversations/:username", async (req, res) => {
   try {
     const userInfo = decodeSubFromRequestHeader(req);
-    const userIdResults = await readQuery(queryStrings.readUserId, [
-      userInfo.username
-    ]);
-    const userId = userIdResults[0]["user_id"];
-
-    const otherUserIdResults = await readQuery(queryStrings.readUserId, [
-      req.params.username
-    ]);
-
-    const otherUserId = otherUserIdResults[0]["user_id"];
+    const userId = await getUserId(userInfo.username)
+    const otherUserId = await getUserId(req.params.username);
 
     const messageBody = req.body.messageBody;
 
