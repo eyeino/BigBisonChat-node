@@ -26,3 +26,5 @@ const createUserIR: any = {"name":"CreateUser","params":[{"name":"username","tra
  * ```
  */
 export const createUser = new PreparedQuery<ICreateUserParams,ICreateUserResult>(createUserIR);
+
+

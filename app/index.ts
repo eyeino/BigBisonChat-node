@@ -12,6 +12,7 @@ import {
   readQuery,
   getConversations,
   makeUser,
+  getConversation,
 } from "./db";
 
 // JWT for authentication with Auth0
@@ -105,7 +106,7 @@ app.get('/conversations/:username', async (req, res) => {
   const otherUserIdResults = await readQuery(queryStrings.readUserId, [req.params.username]);
   const otherUserId = otherUserIdResults[0]["user_id"];
 
-  const messages = await readQuery(queryStrings.readChatMessages, [userId, otherUserId]);
+  const messages = await getConversation(userId, otherUserId);
   res.json(messages);
 })
 

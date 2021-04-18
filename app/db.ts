@@ -1,4 +1,5 @@
 const { Pool } = require('pg');
+import { findConversation } from "./queries/conversation.queries";
 import { findConversationsByUserId } from "./queries/conversations.queries";
 import { createUser } from "./queries/createUser.queries";
 
@@ -25,41 +26,6 @@ pool.on('error', (err, client) => {
 })
 
 export const queryStrings = {
-  // parameter $1: current user's id, $2: id of other user in chat
-  readChatMessages: `SELECT array_to_json(array_agg(row_to_json(t))) FROM
-
-  (WITH conversation AS (
-    SELECT *
-    FROM messages
-    WHERE (messages.recipient = $1 AND messages.sender = $2)
-    OR (messages.sender = $1 AND messages.recipient = $2)
-    ORDER BY created_at DESC LIMIT 20
-  ),
-  
-  almost_full_message AS (
-	  SELECT
-	    body,
-	    conversation.created_at,
-	    username as sender_username,
-	    sender,
-	    recipient,
-	    message_id
-	  FROM conversation
-	  LEFT JOIN users ON conversation.sender = users.user_id
-  )
-
-  SELECT
-	  body,
-	  almost_full_message.created_at,
-    sender_username,
-    username as recipient_username,
-    sender,
-    recipient,
-    message_id	
-  FROM almost_full_message
-  LEFT JOIN users ON almost_full_message.recipient = users.user_id
-  ORDER BY created_at ASC) t;`,
-
   // parameter $1: current user's username
   readUserId: `SELECT array_to_json(array_agg(row_to_json(t))) FROM (
     SELECT user_id FROM users WHERE username = $1) t;`,
@@ -112,7 +78,6 @@ export async function readQuery(queryString, paramList) {
   const client = await pool.connect();
   try {
     const res = await client.query(queryString, paramList);
-    // console.log(JSON.stringify(res.rows[0]["array_to_json"], null, 4));
     return res.rows[0]["array_to_json"];
   } finally {
     client.release();
@@ -132,6 +97,19 @@ export async function getConversations(userId: number) {
   client.release();
 
   return conversations;
+}
+
+export async function getConversation(sender: number, recipient: number) {
+  const client = await pool.connect();
+
+  const conversation = await findConversation.run({
+    sender,
+    recipient
+  }, client);
+
+  client.release();
+
+  return conversation;
 }
 
 export async function makeUser(username: string, open_id_sub: string, avatar_url: string) {
@@ -155,12 +133,4 @@ export async function insertQuery(queryString, paramList) {
   } finally {
     client.release();
   }
-}
-
-module.exports = {
-  queryStrings,
-  insertQuery,
-  readQuery,
-  getConversations,
-  makeUser
 }
