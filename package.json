@@ -20,8 +20,8 @@
     "typescript": "^4.2.4"
   },
   "scripts": {
-    "start": "nodemon app/index.ts",
-    "build": "tsc --build",
+    "start": "tsc --build && node dist/index.js",
+    "dev": "nodemon app/index.ts",
     "generate:types": "npx pgtyped -c pgtyped.config.json"
   },
   "keywords": [
