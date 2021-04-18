@@ -1,4 +1,4 @@
-const { Pool } = require('pg');
+import { Pool } from 'pg';
 import { findConversation } from "./queries/conversation.queries";
 import { findConversationsByUserId } from "./queries/conversations.queries";
 import { createUser } from "./queries/createUser.queries";
@@ -8,8 +8,7 @@ import { insertMessage } from "./queries/insertMessage.queries";
 
 require('dotenv').config();
 
-let pool = null;
-
+let pool: Pool;
 // check if deployment has remote DB URI,
 // otherwise connect to local DB using environment variables
 if (process.env.DATABASE_URL) {
@@ -23,7 +22,7 @@ if (process.env.DATABASE_URL) {
   pool = new Pool();
 }
 
-pool.on('error', (err, client) => {
+pool.on('error', (err, _client) => {
   console.error('Unexpected error on idle client', err);
   process.exit(-1);
 })
