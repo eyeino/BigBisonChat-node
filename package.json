@@ -2,8 +2,10 @@
   "name": "big-bison-chat-node",
   "version": "1.0.0",
   "description": "Chat for big bison lovers.",
-  "main": "app/server.js",
+  "main": "dist/index.js",
   "dependencies": {
+    "@pgtyped/cli": "^0.10.3",
+    "@pgtyped/query": "^0.10.2",
     "cors": "^2.8.5",
     "dotenv": "^7.0.0",
     "eventemitter3": "^4.0.4",
@@ -13,15 +15,21 @@
     "jwt-decode": "^2.2.0",
     "nodemon": "^2.0.7",
     "pg": "^8.5.1",
-    "socket.io": "^2.4.0"
+    "socket.io": "^2.4.0",
+    "ts-node": "^9.1.1",
+    "typescript": "^4.2.4"
   },
   "scripts": {
-    "start": "nodemon app/server.js"
+    "start": "nodemon app/index.ts"
   },
   "keywords": [
     "bison",
     "chat"
   ],
   "author": "eyeino",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "@types/cors": "^2.8.10",
+    "@types/socket.io": "^2.1.13"
+  }
 }

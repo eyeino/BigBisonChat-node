@@ -1,10 +1,19 @@
-const express = require('express');
-const cors = require('cors');
+import * as express from 'express';
+import * as http from 'http';
+import * as socketio from 'socket.io';
+import * as cors from 'cors';
 
-const EventEmitter = require('eventemitter3');
+import * as EventEmitter from 'eventemitter3';
 const em = new EventEmitter();
 
-const db = require('./db');
+import {
+  getConversations,
+  makeUser,
+  getConversation,
+  getUserId,
+  sendMessage,
+  searchUsers
+} from "./db";
 
 // JWT for authentication with Auth0
 const jwt = require('express-jwt');
@@ -32,8 +41,8 @@ const corsOptions = {
 
 // server initialization
 const app = express();
-const server = require('http').Server(app);
-const io = require('socket.io').listen(server);
+const server = new http.Server(app);
+const io = socketio(server, { origins: process.env.PORT ? 'https://chat.bigbison.co' : 'http://localhost:3000' });
 
 // middleware
 const ignoreFavicon = (req, res, next) => {
@@ -73,35 +82,24 @@ app.get('/conversations', async (req, res) => {
   const userInfo = decodeSubFromRequestHeader(req);
 
   try {
-    const userIdResults = await db.readQuery(db.queryStrings.readUserId, [
-      userInfo.username
-    ]);
-    const userId = userIdResults[0]["user_id"];
-    const conversations = await db.readQuery(
-      db.queryStrings.readConversations,
-      [userId]
-    );
+    await makeUser(userInfo.username, userInfo.sub, userInfo.picture);
+    const userId = await getUserId(userInfo.username);
+    const conversations = await getConversations(userId);
 
     res.json(conversations);
-    return
   } catch(err) {
-    await db.insertQuery(db.queryStrings.insertUser, [userInfo.username, userInfo.sub, userInfo.picture])
+    await makeUser(userInfo.username, userInfo.sub, userInfo.picture).catch(err => console.log(err));
     res.redirect(req.originalUrl);
-    return
   }
 })
 
 // get list of messages between two users
 app.get('/conversations/:username', async (req, res) => {
-
   const userInfo = decodeSubFromRequestHeader(req);
-  const userIdResults = await db.readQuery(db.queryStrings.readUserId, [userInfo.username]);
-  const userId = userIdResults[0]["user_id"];
-  
-  const otherUserIdResults = await db.readQuery(db.queryStrings.readUserId, [req.params.username]);
-  const otherUserId = otherUserIdResults[0]["user_id"];
+  const userId = await getUserId(userInfo.username);
+  const otherUserId = await getUserId(req.params.username);
 
-  const messages = await db.readQuery(db.queryStrings.readChatMessages, [userId, otherUserId]);
+  const messages = await getConversation(userId, otherUserId);
   res.json(messages);
 })
 
@@ -109,28 +107,15 @@ app.get('/conversations/:username', async (req, res) => {
 app.post("/conversations/:username", async (req, res) => {
   try {
     const userInfo = decodeSubFromRequestHeader(req);
-    const userIdResults = await db.readQuery(db.queryStrings.readUserId, [
-      userInfo.username
-    ]);
-    const userId = userIdResults[0]["user_id"];
-
-    const otherUserIdResults = await db.readQuery(db.queryStrings.readUserId, [
-      req.params.username
-    ]);
-
-    const otherUserId = otherUserIdResults[0]["user_id"];
-
+    const userId = await getUserId(userInfo.username)
+    const otherUserId = await getUserId(req.params.username);
     const messageBody = req.body.messageBody;
 
-    const insertedMessageResponse = await db.insertQuery(db.queryStrings.insertMessageAndReturnIt, [
-      userId,
-      otherUserId,
-      messageBody
-    ]);
+    const insertedMessage = await sendMessage(userId, otherUserId, messageBody);
 
     const eventName = determineEventNameFromUsernames(userInfo.username, req.params.username);
 
-    em.emit('post', eventName, insertedMessageResponse.rows[0]['row_to_json']);
+    em.emit('post', eventName, insertedMessage);
 
     res.sendStatus(200);
     return;
@@ -141,9 +126,7 @@ app.post("/conversations/:username", async (req, res) => {
 });
 
 app.get('/search/users/:query', async (req, res) => {
-  const usernameQuery = req.params.query;
-
-  const usernameResults = await db.readQuery(db.queryStrings.readUserSearchResults, [usernameQuery + '%']);
+  const usernameResults = await searchUsers(req.params.query + '%');
   res.json(usernameResults);
 });
 
@@ -161,7 +144,7 @@ io.on('connection', socket => {
   });
 })
 
-port = process.env.PORT || 8080;
+const port = Number(process.env.PORT) || 8080;
 server.listen(port, async () => {
   console.log(`server listening on port ${port}`);
 });
