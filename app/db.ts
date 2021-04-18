@@ -1,10 +1,12 @@
 import { Pool } from 'pg';
-import { findConversation } from "./queries/conversation.queries";
-import { findConversationsByUserId } from "./queries/conversations.queries";
-import { createUser } from "./queries/createUser.queries";
-import { findUserIdByUsername } from "./queries/findUserId.queries";
-import { findUsersLikeUsername } from "./queries/findUsers.queries";
-import { insertMessage } from "./queries/insertMessage.queries";
+import {
+  findConversation,
+  findConversationsByUserId,
+  createUser,
+  findUserIdByUsername,
+  findUsersLikeUsername,
+  insertMessage
+} from "./queries";
 
 require('dotenv').config();
 
