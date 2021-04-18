@@ -1,5 +1,17 @@
 # BigBisonChat
 
-## Overview
+This is the backend for BigBisonChat. Please see the README for the [React client](https://github.com/eyeino/BigBisonChat-React) to learn about the frontend.
 
-This is the backend for the BigBisonChat React client. I wrote it to run all the chat services I want, and so I can use any type of client in the future, relying on HTTP requests and some type of Websocket implementation. Please see the README for the [React client](https://github.com/eyeino/BigBisonChat-React).
+## Development
+
+Starting this up is very, very simple. You just need Node (14+) and Docker.
+
+- Clone this repo.
+- Make sure those .env files match up!
+- Run `docker compose up` in the root folder of this project.
+- This will build you an app container with hot reloading and a local, seeded Postgres instance.
+- Check out the frontend, which works in tandem with this.
+
+### Database changes
+
+Database queries are done in .sql files. `npm generate:types` will generate types for these queries.
