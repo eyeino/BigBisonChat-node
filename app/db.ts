@@ -1,4 +1,6 @@
 const { Pool } = require('pg');
+import { findConversationsByUserId } from "./queries/conversations.queries";
+import { createUser } from "./queries/createUser.queries";
 
 require('dotenv').config();
 
@@ -22,40 +24,7 @@ pool.on('error', (err, client) => {
   process.exit(-1);
 })
 
-const queryStrings = {
-  // parameter $1: current user's id
-  readConversations: `SELECT array_to_json(array_agg(row_to_json(t))) FROM
-    (WITH relevant_messages AS (
-      SELECT * FROM messages WHERE ((messages.sender = $1) OR (messages.recipient = $1))),
-    
-    summed_messages AS (
-      SELECT sender + recipient AS sum, * FROM relevant_messages
-    ),
-    
-    conversations AS (
-      SELECT DISTINCT ON (sum) * FROM summed_messages
-      ORDER BY (sum), created_at DESC
-    ),
-    
-    user_sent AS (
-      SELECT message_id, body, username as other_username, (sent.created_at), avatar_url FROM
-      (SELECT * FROM conversations
-      WHERE conversations.sender = $1) AS sent
-      LEFT JOIN users ON sent.recipient = users.user_id
-    ),
-    
-    user_received AS (
-      SELECT message_id, body, username as other_username, (received.created_at), avatar_url FROM
-      (SELECT * FROM conversations
-      WHERE conversations.recipient = $1) AS received
-      LEFT JOIN users ON received.sender = users.user_id
-    )
-    
-    SELECT * FROM user_sent
-    UNION ALL
-    SELECT * FROM user_received
-    ORDER BY created_at DESC) t;`,
-
+export const queryStrings = {
   // parameter $1: current user's id, $2: id of other user in chat
   readChatMessages: `SELECT array_to_json(array_agg(row_to_json(t))) FROM
 
@@ -99,9 +68,6 @@ const queryStrings = {
   readUserSearchResults: `SELECT array_to_json(array_agg(row_to_json(t))) FROM (
     SELECT user_id, username FROM users WHERE username LIKE $1 LIMIT 10) t;`,
 
-  // parameter $1: username, $2: the entire Open ID sub value (unique value to identify user supplied in JWT during authentication)
-  insertUser: `INSERT INTO users (username, open_id_sub, avatar_url) VALUES ($1, $2, $3) ON CONFLICT DO NOTHING;`,
-
   // parameter $1: sender id, $2: recipient id, $3: body of message
   insertMessageSilently: `INSERT INTO messages(sender, recipient, body)
   VALUES ($1, $2, $3);`,
@@ -142,7 +108,7 @@ const queryStrings = {
   SELECT row_to_json(t) FROM full_message t;`
 }
 
-async function readQuery(queryString, paramList) {
+export async function readQuery(queryString, paramList) {
   const client = await pool.connect();
   try {
     const res = await client.query(queryString, paramList);
@@ -153,7 +119,34 @@ async function readQuery(queryString, paramList) {
   }
 }
 
-async function insertQuery(queryString, paramList) {
+export async function getConversations(userId: number) {
+  const client = await pool.connect();
+
+  const conversations = await findConversationsByUserId.run(
+    {
+      userId
+    },
+    client
+  );
+
+  client.release();
+
+  return conversations;
+}
+
+export async function makeUser(username: string, open_id_sub: string, avatar_url: string) {
+  const client = await pool.connect();
+
+  await createUser.run({
+    username,
+    open_id_sub,
+    avatar_url
+  }, client);
+
+  client.release();
+}
+
+export async function insertQuery(queryString, paramList) {
   const client = await pool.connect();
   try {
     const res = await client.query(queryString, paramList);
@@ -167,5 +160,7 @@ async function insertQuery(queryString, paramList) {
 module.exports = {
   queryStrings,
   insertQuery,
-  readQuery
+  readQuery,
+  getConversations,
+  makeUser
 }

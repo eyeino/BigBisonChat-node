@@ -27,5 +27,9 @@
     "chat"
   ],
   "author": "eyeino",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "@types/cors": "^2.8.10",
+    "@types/socket.io": "^2.1.13"
+  }
 }
