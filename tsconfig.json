@@ -2,7 +2,8 @@
   "compilerOptions": {
     "target": "ES2019",
     "outDir": "dist",
-    "module": "commonjs"
+    "module": "commonjs",
+    "strict": true
   },
   "include": ["**/*/*.ts"],
   "exclude": ["node_modules", "**/*/*.test.ts"],

@@ -45,7 +45,7 @@ const server = new http.Server(app);
 const io = socketio(server, { origins: process.env.PORT ? 'https://chat.bigbison.co' : 'http://localhost:3000' });
 
 // middleware
-const ignoreFavicon = (req, res, next) => {
+const ignoreFavicon = (req: express.Request, res: express.Response, next: express.NextFunction) => {
   if (req.originalUrl === "/favicon.ico") {
     res.status(204).end();
   } else {
@@ -62,8 +62,8 @@ app.use(excludedRoutes, checkJwt);
 
 // TODO: change this name.. decodeSub is a bit of a misnomer
 // since it does more than that
-function decodeSubFromRequestHeader(request) {
-  const jwt = request.header('authorization').split(" ")[1];
+function decodeSubFromRequestHeader(request: express.Request) {
+  const jwt = request.header('authorization')?.split(" ")[1];
   const decodedJwt = jwtDecode(jwt);
   return {
     sub: decodedJwt.sub,
@@ -73,7 +73,7 @@ function decodeSubFromRequestHeader(request) {
 }
 
 // create unique and deterministic event name for a conversation
-function determineEventNameFromUsernames(username1, username2) {
+function determineEventNameFromUsernames(username1: string, username2: string) {
   return [username1, username2].sort().join('-');
 };
 
