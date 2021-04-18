@@ -1,7 +1,6 @@
 {
-  "name": "big-bison-chat-node",
+  "name": "bigbisonchat-node",
   "version": "1.0.0",
-  "description": "Chat for big bison lovers.",
   "main": "dist/index.js",
   "dependencies": {
     "@pgtyped/cli": "^0.10.3",
@@ -25,12 +24,7 @@
     "dev": "nodemon app/index.ts",
     "generate:types": "npx pgtyped -c pgtyped.config.json"
   },
-  "keywords": [
-    "bison",
-    "chat"
-  ],
-  "author": "eyeino",
-  "license": "ISC",
+  "author": "iannotian",
   "devDependencies": {
     "@types/cors": "^2.8.10",
     "@types/pg": "^7.14.11",
