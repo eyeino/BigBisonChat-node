@@ -20,7 +20,8 @@
     "typescript": "^4.2.4"
   },
   "scripts": {
-    "start": "nodemon app/index.ts"
+    "start": "nodemon app/index.ts",
+    "build": "tsc --build"
   },
   "keywords": [
     "bison",

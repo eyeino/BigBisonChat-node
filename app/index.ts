@@ -1,9 +1,9 @@
-import * as express from 'express';
+import express from 'express';
 import * as http from 'http';
-import * as socketio from 'socket.io';
-import * as cors from 'cors';
+import socketio from 'socket.io';
+import cors from 'cors';
 
-import * as EventEmitter from 'eventemitter3';
+import EventEmitter from 'eventemitter3';
 const em = new EventEmitter();
 
 import {
