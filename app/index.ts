@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import * as http from 'http';
 import socketio from 'socket.io';
 import cors from 'cors';
@@ -45,7 +45,7 @@ const server = new http.Server(app);
 const io = socketio(server, { origins: process.env.PORT ? 'https://chat.bigbison.co' : 'http://localhost:3000' });
 
 // middleware
-const ignoreFavicon = (req: express.Request, res: express.Response, next: express.NextFunction) => {
+const ignoreFavicon = (req: Request, res: Response, next: NextFunction) => {
   if (req.originalUrl === "/favicon.ico") {
     res.status(204).end();
   } else {
@@ -62,7 +62,7 @@ app.use(excludedRoutes, checkJwt);
 
 // TODO: change this name.. decodeSub is a bit of a misnomer
 // since it does more than that
-function decodeSubFromRequestHeader(request: express.Request) {
+function decodeSubFromRequestHeader(request: Request) {
   const jwt = request.header('authorization')?.split(" ")[1];
   const decodedJwt = jwtDecode(jwt);
   return {
