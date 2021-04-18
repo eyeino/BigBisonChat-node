@@ -7,14 +7,13 @@ import * as EventEmitter from 'eventemitter3';
 const em = new EventEmitter();
 
 import {
-  queryStrings,
-  insertQuery,
   readQuery,
   getConversations,
   makeUser,
   getConversation,
   getUserId,
-  sendMessage
+  sendMessage,
+  searchUsers
 } from "./db";
 
 // JWT for authentication with Auth0
@@ -128,9 +127,7 @@ app.post("/conversations/:username", async (req, res) => {
 });
 
 app.get('/search/users/:query', async (req, res) => {
-  const usernameQuery = req.params.query;
-
-  const usernameResults = await readQuery(queryStrings.readUserSearchResults, [usernameQuery + '%']);
+  const usernameResults = await searchUsers(req.params.query + '%');
   res.json(usernameResults);
 });
 

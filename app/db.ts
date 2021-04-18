@@ -3,6 +3,7 @@ import { findConversation } from "./queries/conversation.queries";
 import { findConversationsByUserId } from "./queries/conversations.queries";
 import { createUser } from "./queries/createUser.queries";
 import { findUserIdByUsername } from "./queries/findUserId.queries";
+import { findUsersLikeUsername } from "./queries/findUsers.queries";
 import { insertMessage } from "./queries/insertMessage.queries";
 
 require('dotenv').config();
@@ -26,12 +27,6 @@ pool.on('error', (err, client) => {
   console.error('Unexpected error on idle client', err);
   process.exit(-1);
 })
-
-export const queryStrings = {
-  // parameter $1: search query for username
-  readUserSearchResults: `SELECT array_to_json(array_agg(row_to_json(t))) FROM (
-    SELECT user_id, username FROM users WHERE username LIKE $1 LIMIT 10) t;`,
-}
 
 export async function readQuery(queryString, paramList) {
   const client = await pool.connect();
@@ -107,6 +102,18 @@ export async function sendMessage(sender: number, recipient: number, body: strin
   client.release();
   
   return id[0];
+}
+
+export async function searchUsers(query: string) {
+  const client = await pool.connect();
+
+  const results = await findUsersLikeUsername.run({
+    query
+  }, client);
+
+  client.release();
+
+  return results;
 }
 
 export async function insertQuery(queryString, paramList) {
