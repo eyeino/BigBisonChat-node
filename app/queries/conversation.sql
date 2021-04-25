@@ -4,7 +4,7 @@
     FROM messages
     WHERE (messages.recipient = :recipient AND messages.sender = :sender)
     OR (messages.sender = :recipient AND messages.recipient = :sender)
-    ORDER BY created_at DESC LIMIT 20
+    ORDER BY created_at DESC LIMIT 20 OFFSET :offset::int /* typecast to work around pgtyped bug */
     ),
 
 almost_full_message AS (

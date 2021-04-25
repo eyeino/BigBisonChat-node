@@ -44,12 +44,13 @@ export async function getConversations(userId: number) {
   return conversations;
 }
 
-export async function getConversation(sender: number, recipient: number) {
+export async function getConversation(sender: number, recipient: number, offset: number = 0) {
   const client = await pool.connect();
 
   const conversation = await findConversation.run({
     sender,
-    recipient
+    recipient,
+    offset
   }, client);
 
   client.release();
