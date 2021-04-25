@@ -99,7 +99,7 @@ app.get('/conversations/:username', async (req, res) => {
   const userId = await getUserId(userInfo.username);
   const otherUserId = await getUserId(req.params.username);
 
-  const messages = await getConversation(userId, otherUserId);
+  const messages = await getConversation(userId, otherUserId, req.query.offset);
   res.json(messages);
 })
 
