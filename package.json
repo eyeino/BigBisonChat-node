@@ -5,6 +5,7 @@
   "dependencies": {
     "@pgtyped/cli": "^0.10.3",
     "@pgtyped/query": "^0.10.2",
+    "apollo-server-express": "^2.25.2",
     "cors": "^2.8.5",
     "dotenv": "^7.0.0",
     "eventemitter3": "^4.0.4",
@@ -21,7 +22,8 @@
   "scripts": {
     "start": "node dist/index.js",
     "postinstall": "tsc --build",
-    "dev": "nodemon app/index.ts",
+    "build": "tsc --build",
+    "dev": "nodemon src/index.ts",
     "generate:types": "npx pgtyped -c pgtyped.config.json"
   },
   "author": "iannotian",
@@ -29,5 +31,8 @@
     "@types/cors": "^2.8.10",
     "@types/pg": "^7.14.11",
     "@types/socket.io": "^2.1.13"
+  },
+  "volta": {
+    "node": "16.4.0"
   }
 }

@@ -148,3 +148,17 @@ const port = Number(process.env.PORT) || 8080;
 server.listen(port, async () => {
   console.log(`server listening on port ${port}`);
 });
+
+process.on('SIGTERM', () => {
+  console.log('SIGTERM signal received: closing HTTP server')
+  server.close(() => {
+    console.log('HTTP server closed')
+  })
+})
+
+process.on('SIGINT', () => {
+  console.log('SIGINT signal received: closing HTTP server')
+  server.close(() => {
+    console.log('HTTP server closed')
+  })
+})

@@ -12,7 +12,7 @@ services:
       - db
   db:
     build: ./docker/db
-    ports: 
+    ports:
       - "5432:5432"
     env_file:
       - ./docker/db/db.env
