@@ -3,6 +3,8 @@ import * as http from 'http';
 import socketio from 'socket.io';
 import cors from 'cors';
 
+import { ApolloServer, gql } from 'apollo-server-express'
+
 import EventEmitter from 'eventemitter3';
 const em = new EventEmitter();
 
@@ -14,6 +16,24 @@ import {
   sendMessage,
   searchUsers
 } from "./db";
+
+//#region Apollo Server
+// Construct a schema, using GraphQL schema language
+const typeDefs = gql`
+  type Query {
+    hello: String
+  }
+`;
+
+// Provide resolver functions for your schema fields
+const resolvers = {
+  Query: {
+    hello: () => 'Hello world!',
+  },
+};
+
+const apolloServer = new ApolloServer({ typeDefs, resolvers });
+//#endregion
 
 // JWT for authentication with Auth0
 const jwt = require('express-jwt');
@@ -58,7 +78,12 @@ const excludedRoutes = [/\/((?!ping).)*/];
 app.use(express.json());
 app.use(cors(corsOptions));
 app.use(ignoreFavicon);
-app.use(excludedRoutes, checkJwt);
+
+if (process.env.NODE_ENV === 'production') {
+  app.use(excludedRoutes, checkJwt);
+}
+
+apolloServer.applyMiddleware({ app });
 
 // TODO: change this name.. decodeSub is a bit of a misnomer
 // since it does more than that
