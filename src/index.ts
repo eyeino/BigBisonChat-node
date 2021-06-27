@@ -21,18 +21,52 @@ import {
 // Construct a schema, using GraphQL schema language
 const typeDefs = gql`
   type Query {
-    hello: String
+    conversations(forUser: Int!): [Conversation]
+    conversation(sender: Int!, recipient: Int!): [Message]
+  }
+
+  type Subscription {
+    messageStored(messageId: Int!): Message
+  }
+
+  type Conversation {
+    message_id: Int
+    body: String
+    other_username: String
+    created_at: String
+    avatar_url: String
+  }
+  
+  type Message {
+    body: String
+    created_at: String
+    sender_username: String
+    recipient_username: String
+    sender: Int
+    recipient: Int
+    message_id: Int
   }
 `;
 
 // Provide resolver functions for your schema fields
 const resolvers = {
   Query: {
-    hello: () => 'Hello world!',
+    conversation: async (_parent: any, { sender, recipient }: { sender: number, recipient: number }) => await getConversation(sender, recipient),
+    conversations: async (_parent: any, { forUser }: { forUser: number }) => {
+      return await getConversations(forUser)
+    },
+  },
+  Subscription: {
+    messageStored: {
+      subscribe: () => {},
+    },
   },
 };
 
-const apolloServer = new ApolloServer({ typeDefs, resolvers });
+const apolloServer = new ApolloServer({
+  typeDefs,
+  resolvers,
+});
 //#endregion
 
 // JWT for authentication with Auth0
@@ -88,6 +122,13 @@ apolloServer.applyMiddleware({ app });
 // TODO: change this name.. decodeSub is a bit of a misnomer
 // since it does more than that
 function decodeSubFromRequestHeader(request: Request) {
+  if (process.env.NODE_ENV !== 'production') {
+    return {
+      sub: 'rodrigoOpenId',
+      username: 'rodrigo'
+    }
+  }
+  
   const jwt = request.header('authorization')?.split(" ")[1];
   const decodedJwt = jwtDecode(jwt);
   return {
