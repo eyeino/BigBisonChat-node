@@ -16,13 +16,14 @@ import {
   sendMessage,
   searchUsers
 } from "./db";
+import {GraphQLRequestContext} from 'apollo-server-core';
 
 //#region Apollo Server
 // Construct a schema, using GraphQL schema language
 const typeDefs = gql`
   type Query {
-    conversations(forUser: Int!): [Conversation]
-    conversation(sender: Int!, recipient: Int!): [Message]
+    conversations: [Conversation]
+    conversation(otherUserId: Int!, offset: Int): [Message]
   }
 
   type Subscription {
@@ -51,9 +52,17 @@ const typeDefs = gql`
 // Provide resolver functions for your schema fields
 const resolvers = {
   Query: {
-    conversation: async (_parent: any, { sender, recipient }: { sender: number, recipient: number }) => await getConversation(sender, recipient),
-    conversations: async (_parent: any, { forUser }: { forUser: number }) => {
-      return await getConversations(forUser)
+    conversation: async (_parent: any, { otherUserId, offset }: { otherUserId: number, offset?: number }, context: any) => {
+      const userInfo = decodeSubFromRequestHeader(context.req);
+      const userId = await getUserId(userInfo.username)
+
+      return await getConversation(userId, otherUserId, offset)
+    },
+    conversations: async (_parent: any, _args: any, context: any) => {
+      const userInfo = decodeSubFromRequestHeader(context.req);
+      const userId = await getUserId(userInfo.username)
+
+      return await getConversations(userId);
     },
   },
   Subscription: {
