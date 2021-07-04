@@ -1,20 +1,20 @@
-import express = require("express");
-import { em } from "../../common";
+import express = require('express');
+import { em } from '../../common';
 import {
   getConversation,
   getConversations,
   getUserId,
   makeUser,
   sendMessage,
-} from "../../database";
+} from '../../database';
 import {
   decodeSubFromRequestHeader,
   determineEventNameFromUsernames,
-} from "../../util/jwt";
+} from '../../util/jwt';
 
 const conversationsRouter = express.Router();
 
-conversationsRouter.get("/", async (req, res) => {
+conversationsRouter.get('/', async (req, res) => {
   const userInfo = decodeSubFromRequestHeader(req);
 
   try {
@@ -24,15 +24,17 @@ conversationsRouter.get("/", async (req, res) => {
 
     res.json(conversations);
   } catch (err) {
-    await makeUser(userInfo.username, userInfo.sub, userInfo.picture).catch(
-      (err) => console.log(err)
-    );
+    await makeUser(
+      userInfo.username,
+      userInfo.sub,
+      userInfo.picture
+    ).catch((err) => console.log(err));
     res.redirect(req.originalUrl);
   }
 });
 
 // get list of messages between two users
-conversationsRouter.get("/:username", async (req, res) => {
+conversationsRouter.get('/:username', async (req, res) => {
   const userInfo = decodeSubFromRequestHeader(req);
   const userId = await getUserId(userInfo.username);
 
@@ -43,7 +45,7 @@ conversationsRouter.get("/:username", async (req, res) => {
 });
 
 // send message to a user from a user
-conversationsRouter.post("/:username", async (req, res) => {
+conversationsRouter.post('/:username', async (req, res) => {
   try {
     const userInfo = decodeSubFromRequestHeader(req);
 
@@ -58,7 +60,7 @@ conversationsRouter.post("/:username", async (req, res) => {
       req.params.username
     );
 
-    em.emit("post", eventName, insertedMessage);
+    em.emit('post', eventName, insertedMessage);
 
     res.sendStatus(200);
     return;

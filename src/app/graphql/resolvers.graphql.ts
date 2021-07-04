@@ -1,5 +1,5 @@
-import { getUserId, getConversation, getConversations } from "../../database";
-import { decodeSubFromRequestHeader } from "../../util/jwt";
+import { getUserId, getConversation, getConversations } from '../../database';
+import { decodeSubFromRequestHeader } from '../../util/jwt';
 
 export const resolvers = {
   Query: {

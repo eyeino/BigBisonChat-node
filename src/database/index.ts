@@ -1,4 +1,4 @@
-import { Pool } from "pg";
+import { Pool } from 'pg';
 import {
   findConversation,
   findConversationsByUserId,
@@ -6,9 +6,15 @@ import {
   findUserIdByUsername,
   findUsersLikeUsername,
   insertMessage,
-} from "./queries";
+} from './queries';
 
-require("dotenv").config();
+import dotenv = require('dotenv');
+import { IFindConversationsByUserIdResult } from './queries/conversations.queries';
+import { IFindConversationResult } from './queries/conversation.queries';
+import { IInsertMessageResult } from './queries/insertMessage.queries';
+import { IFindUsersLikeUsernameResult } from './queries/findUsers.queries';
+
+dotenv.config();
 
 let pool: Pool;
 // check if deployment has remote DB URI,
@@ -24,12 +30,14 @@ if (process.env.DATABASE_URL) {
   pool = new Pool();
 }
 
-pool.on("error", (err, _client) => {
-  console.error("Unexpected error on idle client", err);
+pool.on('error', (err) => {
+  console.error('Unexpected error on idle client', err);
   process.exit(-1);
 });
 
-export async function getConversations(userId: number) {
+export async function getConversations(
+  userId: number
+): Promise<IFindConversationsByUserIdResult[]> {
   const client = await pool.connect();
 
   const conversations = await findConversationsByUserId.run(
@@ -47,8 +55,8 @@ export async function getConversations(userId: number) {
 export async function getConversation(
   sender: number,
   recipient: number,
-  offset: number = 0
-) {
+  offset = 0
+): Promise<IFindConversationResult[]> {
   const client = await pool.connect();
 
   const conversation = await findConversation.run(
@@ -69,7 +77,7 @@ export async function makeUser(
   username: string,
   open_id_sub: string,
   avatar_url: string
-) {
+): Promise<void> {
   const client = await pool.connect();
 
   await createUser.run(
@@ -84,7 +92,7 @@ export async function makeUser(
   client.release();
 }
 
-export async function getUserId(username: string) {
+export async function getUserId(username: string): Promise<number> {
   const client = await pool.connect();
 
   const id = await findUserIdByUsername.run(
@@ -103,7 +111,7 @@ export async function sendMessage(
   sender: number,
   recipient: number,
   body: string
-) {
+): Promise<IInsertMessageResult> {
   const client = await pool.connect();
 
   const id = await insertMessage.run(
@@ -120,7 +128,9 @@ export async function sendMessage(
   return id[0];
 }
 
-export async function searchUsers(query: string) {
+export async function searchUsers(
+  query: string
+): Promise<IFindUsersLikeUsernameResult[]> {
   const client = await pool.connect();
 
   const results = await findUsersLikeUsername.run(

@@ -1,5 +1,5 @@
-import jwt = require("express-jwt");
-import jwksRsa = require("jwks-rsa");
+import jwt = require('express-jwt');
+import jwksRsa = require('jwks-rsa');
 
 export const checkJwtMiddleware = jwt({
   secret: jwksRsa.expressJwtSecret({
@@ -10,7 +10,7 @@ export const checkJwtMiddleware = jwt({
   }),
 
   // Validate the audience and the issuer.
-  aud: "https://bigbisonchat.herokuapp.com",
+  aud: 'https://bigbisonchat.herokuapp.com',
   issuer: `https://bigbisonchat.auth0.com/`,
-  algorithms: ["RS256"],
+  algorithms: ['RS256'],
 });

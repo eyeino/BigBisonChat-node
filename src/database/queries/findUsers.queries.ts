@@ -18,7 +18,22 @@ export interface IFindUsersLikeUsernameQuery {
   result: IFindUsersLikeUsernameResult;
 }
 
-const findUsersLikeUsernameIR: any = {"name":"FindUsersLikeUsername","params":[{"name":"query","transform":{"type":"scalar"},"codeRefs":{"used":[{"a":91,"b":95,"line":2,"col":57}]}}],"usedParamSet":{"query":true},"statement":{"body":"SELECT user_id, username FROM users WHERE username LIKE :query LIMIT 10","loc":{"a":34,"b":104,"line":2,"col":0}}};
+const findUsersLikeUsernameIR: any = {
+  name: 'FindUsersLikeUsername',
+  params: [
+    {
+      name: 'query',
+      transform: { type: 'scalar' },
+      codeRefs: { used: [{ a: 91, b: 95, line: 2, col: 57 }] },
+    },
+  ],
+  usedParamSet: { query: true },
+  statement: {
+    body:
+      'SELECT user_id, username FROM users WHERE username LIKE :query LIMIT 10',
+    loc: { a: 34, b: 104, line: 2, col: 0 },
+  },
+};
 
 /**
  * Query generated from SQL:
@@ -26,6 +41,7 @@ const findUsersLikeUsernameIR: any = {"name":"FindUsersLikeUsername","params":[{
  * SELECT user_id, username FROM users WHERE username LIKE :query LIMIT 10
  * ```
  */
-export const findUsersLikeUsername = new PreparedQuery<IFindUsersLikeUsernameParams,IFindUsersLikeUsernameResult>(findUsersLikeUsernameIR);
-
-
+export const findUsersLikeUsername = new PreparedQuery<
+  IFindUsersLikeUsernameParams,
+  IFindUsersLikeUsernameResult
+>(findUsersLikeUsernameIR);
