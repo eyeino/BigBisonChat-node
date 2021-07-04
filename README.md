@@ -4,7 +4,8 @@ This is the backend for BigBisonChat. Please see the README for the [web client]
 
 ## Development
 
-Starting this up is very, very simple. You just need Docker.
+_Prerequisites: Docker 3.x_
+
 This process will build you an app container with hot reloading and a local, seeded Postgres instance.
 
 - Clone this repo.
