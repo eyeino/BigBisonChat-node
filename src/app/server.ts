@@ -1,6 +1,6 @@
 import express = require('express');
 import { Server } from 'http';
-import SocketIO = require('socket.io');
+import { Server as SocketServer, Socket } from 'socket.io';
 import { em } from '../common';
 import { setupGracefulShutdown } from '../util/shutdown';
 import { apolloServer } from './graphql';
@@ -44,13 +44,15 @@ function initExpressApp() {
 }
 
 function setupSocketIO(server: Server) {
-  const io = SocketIO(server, {
-    origins: process.env.PORT
-      ? 'https://chat.bigbison.co'
-      : 'http://localhost:3000',
+  const io = new SocketServer(server, {
+    cors: {
+      origin: process.env.PORT
+        ? 'https://chat.bigbison.co'
+        : 'http://localhost:3000',
+    },
   });
 
-  io.on('connection', (socket) => {
+  io.on('connection', (socket: Socket) => {
     em.on('post', (eventName, payload) => {
       socket.emit(eventName, payload);
     });

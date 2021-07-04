@@ -12,26 +12,25 @@
     "generate:types": "npx pgtyped -c pgtyped.config.json"
   },
   "dependencies": {
-    "@pgtyped/cli": "^0.10.3",
-    "@pgtyped/query": "^0.10.2",
+    "@pgtyped/cli": "^0.11.0",
+    "@pgtyped/query": "^0.11.0",
     "apollo-server-express": "^2.25.2",
     "cors": "^2.8.5",
     "dotenv": "^10.0.0",
-    "eventemitter3": "^4.0.4",
+    "eventemitter3": "^4.0.7",
     "express": "^4.17.1",
     "express-jwt": "^6.0.0",
     "graphql": "^15.5.1",
-    "jwks-rsa": "^1.7.0",
+    "jwks-rsa": "^2.0.3",
     "jwt-decode": "^3.1.2",
-    "pg": "^8.5.1",
-    "socket.io": "^2.4.0"
+    "pg": "^8.6.0",
+    "socket.io": "^4.1.2"
   },
   "author": "iannotian",
   "devDependencies": {
     "@types/cors": "^2.8.10",
     "@types/express": "^4.17.12",
-    "@types/pg": "^7.14.11",
-    "@types/socket.io": "^2.1.13",
+    "@types/pg": "^8.6.0",
     "@typescript-eslint/eslint-plugin": "^4.28.1",
     "@typescript-eslint/parser": "^4.28.1",
     "eslint": "^7.30.0",
