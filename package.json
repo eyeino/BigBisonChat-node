@@ -14,7 +14,8 @@
     "migrate:create": "npm run migrate -- create",
     "migrate:apply": "npm run migrate -- up",
     "migrate:revert": "npm run migrate -- down",
-    "migrate:swap": "npm run migrate -- down && npm run migrate -- up"
+    "migrate:swap": "npm run migrate -- down && npm run migrate -- up",
+    "heroku-postbuild": "node-pg-migrate --migration-file-language=js --migrations-dir=dist/database/migrations --database-url-var=DATABASE_URL up"
   },
   "dependencies": {
     "@pgtyped/cli": "^0.11.0",
