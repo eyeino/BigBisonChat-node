@@ -42,7 +42,7 @@ function initExpressApp() {
 
   apolloServer.applyMiddleware({ app });
 
-  app.use('/conversations', conversationsRouter);
+  app.use('/conversations', corsMiddleware, conversationsRouter);
   app.use('/search', searchRouter);
   app.use('/', miscRouter);
 
