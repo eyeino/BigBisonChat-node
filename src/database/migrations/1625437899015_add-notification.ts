@@ -6,18 +6,8 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
   pgm.createFunction(
     'handle_new_message',
     [],
-    { language: 'plpgsql' },
-    `SELECT row_to_json(latest_row)::TEXT
-    FROM (
-        SELECT *
-        FROM messages
-        ORDER BY created_at DESC 
-        LIMIT 1
-    ) AS latest_row;
-
-    NOTIFY notify_new_message, latest_row;
-    RETURN NULL;
-    `
+    { language: 'plpgsql', returns: 'TRIGGER' },
+    `BEGIN PERFORM pg_notify('new_message', NEW::TEXT); RETURN NULL; END;`
   );
   pgm.createTrigger('messages', 'trigger_new_message', {
     when: 'AFTER',
@@ -27,6 +17,6 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
 }
 
 export async function down(pgm: MigrationBuilder): Promise<void> {
-  pgm.dropFunction('handle_new_message', []);
   pgm.dropTrigger('messages', 'trigger_new_message');
+  pgm.dropFunction('handle_new_message', []);
 }

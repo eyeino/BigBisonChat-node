@@ -27,7 +27,7 @@ if (process.env.DATABASE_URL) {
     },
   });
 } else {
-  pool = new Pool();
+  pool = new Pool({ host: process.env.DB_HOST || 'db' });
 }
 
 pool.on('error', (err) => {
