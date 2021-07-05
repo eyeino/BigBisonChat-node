@@ -3,12 +3,6 @@ import { Server } from 'http';
 import { Server as SocketServer, Socket } from 'socket.io';
 import { em, EmittableEvents } from '../common';
 import { setupGracefulShutdown } from '../util/shutdown';
-import { apolloServer } from './graphql';
-import {
-  checkJwtMiddleware,
-  corsMiddleware,
-  ignoreFaviconMiddleware,
-} from './middleware';
 import { conversationsRouter, miscRouter, searchRouter } from './routes';
 import {
   MessagePayload,
