@@ -46,9 +46,11 @@ function initExpressApp() {
 function setupSocketIO(server: Server) {
   const io = new SocketServer(server, {
     cors: {
-      origin: process.env.PORT
-        ? 'https://chat.bigbison.co'
-        : 'http://localhost:3000',
+      origin:
+        process.env.NODE_ENV === 'production'
+          ? 'https://chat.bigbison.co'
+          : 'http://localhost:3000',
+      credentials: true,
     },
   });
 
