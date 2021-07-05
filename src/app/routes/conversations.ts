@@ -1,4 +1,5 @@
 import express = require('express');
+import { conversationsRouter } from '.';
 import { em } from '../../common';
 import {
   getConversation,
@@ -19,24 +20,10 @@ import {
 
 const conversationsRouter = express.Router();
 
-conversationsRouter.use(
-  corsMiddleware,
-  ignoreFaviconMiddleware,
-  checkJwtMiddleware
-);
-
-conversationsRouter.use(function (req, res, next) {
-  const allowed =
-    process.env.NODE_ENV === 'production'
-      ? 'https://chat.bigbison.co'
-      : 'http://localhost:3000';
-  res.header('Access-Control-Allow-Origin', allowed);
-  res.header(
-    'Access-Control-Allow-Headers',
-    'Origin, X-Requested-With, Content-Type, Accept'
-  );
-  next();
-});
+conversationsRouter.use(express.json());
+conversationsRouter.use(corsMiddleware);
+conversationsRouter.use(checkJwtMiddleware);
+conversationsRouter.use(ignoreFaviconMiddleware);
 
 conversationsRouter.get('/', async (req, res) => {
   const userInfo = decodeJwtFromAuthorizationHeader(req.headers.authorization);
