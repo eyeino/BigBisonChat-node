@@ -35,9 +35,10 @@ function initExpressApp() {
   app.use(ignoreFaviconMiddleware);
 
   app.use(function (req, res, next) {
-    const allowed = process.env.NODE_ENV
-      ? 'https://chat.bigbison.co'
-      : 'http://localhost:3000';
+    const allowed =
+      process.env.NODE_ENV === 'production'
+        ? 'https://chat.bigbison.co'
+        : 'http://localhost:3000';
     res.header('Access-Control-Allow-Origin', allowed);
     res.header(
       'Access-Control-Allow-Headers',
