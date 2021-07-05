@@ -1,6 +1,3 @@
-import type { Request } from 'express';
-import { Headers } from 'jwks-rsa';
-
 import jwtDecode from 'jwt-decode';
 
 interface IDecodedJwt {
@@ -31,10 +28,7 @@ export function decodeJwtFromAuthorizationHeader(
   authHeader: string | undefined
 ): IDecodedJwt {
   if (typeof authHeader === 'undefined') {
-    throw {
-      message: 'No auth header present.',
-      authHeader,
-    };
+    throw new TypeError('Authorization header is undefined');
   }
 
   if (process.env.NODE_ENV !== 'production') {
@@ -48,19 +42,15 @@ export function decodeJwtFromAuthorizationHeader(
     };
   }
 
-  const jwt = authHeader.split(' ')[1] ?? '';
+  // Tries to parse from 'Bearer <token>' and if that
+  // fails, it will assume that the <token> itself
+  // was passed in.
+  const jwt = authHeader.split(' ')[1] ?? authHeader;
 
   const decodedJwt = jwtDecode(jwt);
   assertIsJwt(decodedJwt);
 
-  const { sub, username, picture, nickname } = decodedJwt;
-
-  return {
-    sub,
-    username,
-    picture,
-    nickname,
-  };
+  return decodedJwt;
 }
 
 // create unique and deterministic event name for a conversation

@@ -10,8 +10,11 @@ import {
   ignoreFaviconMiddleware,
 } from './middleware';
 import { conversationsRouter, miscRouter, searchRouter } from './routes';
-import { setupNewMessageSubscriber } from '../database/subscribers/new-message.subscriber';
-import { getUsernameById } from '../database';
+import {
+  MessagePayload,
+  setupNewMessageSubscriber,
+} from '../database/subscribers/new-message.subscriber';
+import { decodeJwtFromAuthorizationHeader } from '../util/jwt';
 
 export async function initServer(): Promise<Server> {
   const expressApp = initExpressApp();
@@ -53,22 +56,39 @@ function setupSocketIO(server: Server) {
         process.env.NODE_ENV === 'production'
           ? 'https://chat.bigbison.co'
           : 'http://localhost:3000',
-      credentials: true,
     },
   });
 
-  io.once('connection', (socket: Socket) => {
-    em.on(EmittableEvents.EMIT_MESSAGE_TO_SOCKET, (eventName, payload) => {
-      /**
-       * @todo Check if headers are valid, like so:
-       *
-       * if (checkJwt(socket.handshake.headers) === payload.recipient or payload.sender) {
-       *   socket.emit(eventname, payload);
-       * }
-       */
-      socket.emit(eventName, payload);
-    });
+  io.on('connection', (socket: Socket) => {
+    em.on(
+      EmittableEvents.EMIT_MESSAGE_TO_SOCKET,
+      (
+        eventName: string,
+        payload: MessagePayload & {
+          recipient_username: string;
+          sender_username: string;
+        }
+      ) => {
+        try {
+          const { username } = decodeJwtFromAuthorizationHeader(
+            socket.handshake.auth.token ?? ''
+          );
+
+          if (
+            [payload.recipient_username, payload.sender_username].includes(
+              username
+            )
+          ) {
+            socket.emit(eventName, payload);
+          }
+        } catch (error) {
+          console.log(error);
+        }
+      }
+    );
   });
+
+  io.allSockets();
 
   return io;
 }

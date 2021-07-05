@@ -22,7 +22,7 @@ em.on(
     );
 
     em.emit(EmittableEvents.EMIT_MESSAGE_TO_SOCKET, eventName, {
-      payload,
+      ...payload,
       recipient_username,
       sender_username,
     });
