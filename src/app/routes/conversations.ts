@@ -1,5 +1,4 @@
 import express = require('express');
-import { conversationsRouter } from '.';
 import { em } from '../../common';
 import {
   getConversation,
