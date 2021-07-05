@@ -7,12 +7,13 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
     'handle_new_message',
     [],
     { language: 'plpgsql', returns: 'TRIGGER' },
-    `BEGIN PERFORM pg_notify('new_message', NEW::TEXT); RETURN NULL; END;`
+    `BEGIN PERFORM pg_notify('new_message'::TEXT, row_to_json(NEW)::TEXT); RETURN NEW; END;`
   );
   pgm.createTrigger('messages', 'trigger_new_message', {
+    function: 'handle_new_message',
+    level: 'ROW',
     when: 'AFTER',
     operation: 'INSERT',
-    function: 'handle_new_message',
   });
 }
 
