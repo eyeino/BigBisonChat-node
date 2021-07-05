@@ -24,9 +24,11 @@ conversationsRouter.get('/', async (req, res) => {
 
     res.json(conversations);
   } catch (err) {
-    await makeUser(userInfo.username, userInfo.sub, userInfo.picture).catch(
-      (err) => console.log(err)
-    );
+    await makeUser(
+      userInfo.username,
+      userInfo.sub,
+      userInfo.picture
+    ).catch((err) => console.log(err));
     res.redirect(req.originalUrl);
   }
 });
