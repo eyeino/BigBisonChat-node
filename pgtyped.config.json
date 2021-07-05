@@ -6,7 +6,7 @@
       "emitTemplate": "{{dir}}/{{name}}.queries.ts"
     }
   ],
-  "srcDir": "./app/",
+  "srcDir": "src",
   "failOnError": false,
   "camelCaseColumnNames": false,
   "db": {

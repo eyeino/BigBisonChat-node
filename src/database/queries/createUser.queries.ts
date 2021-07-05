@@ -1,4 +1,4 @@
-/** Types generated for queries found in "app/queries/createUser.sql" */
+/** Types generated for queries found in "src/database/queries/createUser.sql" */
 import { PreparedQuery } from '@pgtyped/query';
 
 /** 'CreateUser' parameters type */

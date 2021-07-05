@@ -1,41 +1,59 @@
 {
   "name": "bigbisonchat-node",
   "version": "1.0.0",
-  "main": "dist/index.js",
+  "main": "dist/main.js",
+  "scripts": {
+    "build": "tsc --build",
+    "prestart": "tsc --build",
+    "start": "node dist/main.js",
+    "start:dev": "nodemon src/main.ts",
+    "lint": "eslint src/**/*.ts",
+    "format": "prettier --write src/**/*",
+    "generate:types": "npx pgtyped -c pgtyped.config.json",
+    "migrate": "node-pg-migrate --migration-file-language=ts --config-file=.env --migrations-dir=src/database/migrations --tsconfig=tsconfig.json",
+    "migrate:create": "npm run migrate -- create",
+    "migrate:apply": "npm run migrate -- up",
+    "migrate:revert": "npm run migrate -- down",
+    "migrate:swap": "npm run migrate -- down && npm run migrate -- up"
+  },
   "dependencies": {
-    "@pgtyped/cli": "^0.10.3",
-    "@pgtyped/query": "^0.10.2",
+    "@pgtyped/cli": "^0.11.0",
+    "@pgtyped/query": "^0.11.0",
     "apollo-server-express": "^2.25.2",
     "cors": "^2.8.5",
-    "dotenv": "^7.0.0",
-    "eventemitter3": "^4.0.4",
+    "dotenv": "^10.0.0",
+    "eventemitter3": "^4.0.7",
     "express": "^4.17.1",
     "express-jwt": "^6.0.0",
-    "jwks-rsa": "^1.7.0",
-    "jwt-decode": "^2.2.0",
-    "nodemon": "^2.0.7",
-    "pg": "^8.5.1",
-    "socket.io": "^2.4.0",
-    "ts-node": "^9.1.1",
-    "typescript": "^4.2.4"
-  },
-  "scripts": {
-    "prestart": "tsc --build",
-    "start": "node dist/index.js",
-    "start:dev": "nodemon src/index.ts",
-    "build": "tsc --build",
-    "generate:types": "npx pgtyped -c pgtyped.config.json"
+    "graphql": "^15.5.1",
+    "jwks-rsa": "^2.0.3",
+    "jwt-decode": "^3.1.2",
+    "pg": "^8.6.0",
+    "pg-listen": "^1.7.0",
+    "socket.io": "^4.1.2"
   },
   "author": "iannotian",
   "devDependencies": {
     "@types/cors": "^2.8.10",
-    "@types/pg": "^7.14.11",
-    "@types/socket.io": "^2.1.13"
+    "@types/express": "^4.17.12",
+    "@types/pg": "^8.6.0",
+    "@typescript-eslint/eslint-plugin": "^4.28.1",
+    "@typescript-eslint/parser": "^4.28.1",
+    "eslint": "^7.30.0",
+    "eslint-config-airbnb-base": "^14.2.1",
+    "eslint-plugin-import": "^2.23.4",
+    "node-pg-migrate": "^5.10.0",
+    "nodemon": "^2.0.9",
+    "ts-node": "^10.0.0",
+    "typescript": "^4.3.5"
   },
   "volta": {
     "node": "16.4.0"
   },
   "engines": {
     "node": "16.x"
+  },
+  "repository": {
+    "url": "https://github.com/iannotian/BigBisonChat"
   }
 }

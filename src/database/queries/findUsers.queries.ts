@@ -1,4 +1,4 @@
-/** Types generated for queries found in "app/queries/findUsers.sql" */
+/** Types generated for queries found in "src/database/queries/findUsers.sql" */
 import { PreparedQuery } from '@pgtyped/query';
 
 /** 'FindUsersLikeUsername' parameters type */

@@ -1,4 +1,4 @@
-/** Types generated for queries found in "app/queries/insertMessage.sql" */
+/** Types generated for queries found in "src/database/queries/insertMessage.sql" */
 import { PreparedQuery } from '@pgtyped/query';
 
 /** 'InsertMessage' parameters type */

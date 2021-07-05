@@ -1,4 +1,4 @@
-/** Types generated for queries found in "app/queries/conversations.sql" */
+/** Types generated for queries found in "src/database/queries/conversations.sql" */
 import { PreparedQuery } from '@pgtyped/query';
 
 /** 'FindConversationsByUserId' parameters type */
