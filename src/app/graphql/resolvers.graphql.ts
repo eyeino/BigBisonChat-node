@@ -1,5 +1,5 @@
 import { getUserId, getConversation, getConversations } from '../../database';
-import { decodeSubFromRequestHeader } from '../../util/jwt';
+import { decodeJwtFromAuthorizationHeader } from '../../util/jwt';
 
 export const resolvers = {
   Query: {
@@ -8,13 +8,17 @@ export const resolvers = {
       { otherUserId, offset }: { otherUserId: number; offset?: number },
       context: any
     ) => {
-      const userInfo = decodeSubFromRequestHeader(context.req);
+      const userInfo = decodeJwtFromAuthorizationHeader(
+        context.req.headers.authorization
+      );
       const userId = await getUserId(userInfo.username);
 
       return await getConversation(userId, otherUserId, offset);
     },
     conversations: async (_parent: any, _args: any, context: any) => {
-      const userInfo = decodeSubFromRequestHeader(context.req);
+      const userInfo = decodeJwtFromAuthorizationHeader(
+        context.req.headers.authorization
+      );
       const userId = await getUserId(userInfo.username);
 
       return await getConversations(userId);
@@ -22,7 +26,9 @@ export const resolvers = {
   },
   Subscription: {
     messageStored: {
-      subscribe: () => {},
+      subscribe: () => {
+        console.log('subscribed');
+      },
     },
   },
 };

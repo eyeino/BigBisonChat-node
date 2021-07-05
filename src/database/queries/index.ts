@@ -4,6 +4,7 @@ import { createUser } from './createUser.queries';
 import { findUserIdByUsername } from './findUserId.queries';
 import { findUsersLikeUsername } from './findUsers.queries';
 import { insertMessage } from './insertMessage.queries';
+import { findUsernameById } from './findUsernameById.queries';
 
 export {
   findConversation,
@@ -12,4 +13,5 @@ export {
   findUserIdByUsername,
   findUsersLikeUsername,
   insertMessage,
+  findUsernameById,
 };

@@ -8,14 +8,14 @@ import {
   sendMessage,
 } from '../../database';
 import {
-  decodeSubFromRequestHeader,
+  decodeJwtFromAuthorizationHeader,
   determineEventNameFromUsernames,
 } from '../../util/jwt';
 
 const conversationsRouter = express.Router();
 
 conversationsRouter.get('/', async (req, res) => {
-  const userInfo = decodeSubFromRequestHeader(req);
+  const userInfo = decodeJwtFromAuthorizationHeader(req.headers.authorization);
 
   try {
     await makeUser(userInfo.username, userInfo.sub, userInfo.picture);
@@ -24,18 +24,16 @@ conversationsRouter.get('/', async (req, res) => {
 
     res.json(conversations);
   } catch (err) {
-    await makeUser(
-      userInfo.username,
-      userInfo.sub,
-      userInfo.picture
-    ).catch((err) => console.log(err));
+    await makeUser(userInfo.username, userInfo.sub, userInfo.picture).catch(
+      (err) => console.log(err)
+    );
     res.redirect(req.originalUrl);
   }
 });
 
 // get list of messages between two users
 conversationsRouter.get('/:username', async (req, res) => {
-  const userInfo = decodeSubFromRequestHeader(req);
+  const userInfo = decodeJwtFromAuthorizationHeader(req.headers.authorization);
   const userId = await getUserId(userInfo.username);
 
   const otherUserId = await getUserId(req.params.username);
@@ -47,7 +45,9 @@ conversationsRouter.get('/:username', async (req, res) => {
 // send message to a user from a user
 conversationsRouter.post('/:username', async (req, res) => {
   try {
-    const userInfo = decodeSubFromRequestHeader(req);
+    const userInfo = decodeJwtFromAuthorizationHeader(
+      req.headers.authorization
+    );
 
     const userId = await getUserId(userInfo.username);
     const otherUserId = await getUserId(req.params.username);

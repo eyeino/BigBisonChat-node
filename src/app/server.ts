@@ -1,7 +1,7 @@
 import express = require('express');
 import { Server } from 'http';
 import { Server as SocketServer, Socket } from 'socket.io';
-import { em } from '../common';
+import { em, EmittableEvents } from '../common';
 import { setupGracefulShutdown } from '../util/shutdown';
 import { apolloServer } from './graphql';
 import {
@@ -10,13 +10,16 @@ import {
   ignoreFaviconMiddleware,
 } from './middleware';
 import { conversationsRouter, miscRouter, searchRouter } from './routes';
+import { setupNewMessageSubscriber } from '../database/subscribers/new-message.subscriber';
+import { getUsernameById } from '../database';
 
-export function initServer(): Server {
+export async function initServer(): Promise<Server> {
   const expressApp = initExpressApp();
   const server = new Server(expressApp);
 
-  setupSocketIO(server);
   setupGracefulShutdown(server);
+  setupSocketIO(server);
+  await setupNewMessageSubscriber();
 
   return server;
 }
@@ -54,8 +57,15 @@ function setupSocketIO(server: Server) {
     },
   });
 
-  io.on('connection', (socket: Socket) => {
-    em.on('post', (eventName, payload) => {
+  io.once('connection', (socket: Socket) => {
+    em.on(EmittableEvents.EMIT_MESSAGE_TO_SOCKET, (eventName, payload) => {
+      /**
+       * @todo Check if headers are valid, like so:
+       *
+       * if (checkJwt(socket.handshake.headers) === payload.recipient or payload.sender) {
+       *   socket.emit(eventname, payload);
+       * }
+       */
       socket.emit(eventName, payload);
     });
   });

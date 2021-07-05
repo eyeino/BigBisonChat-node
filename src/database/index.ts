@@ -1,4 +1,4 @@
-import { Pool } from 'pg';
+import { ClientConfig, Pool } from 'pg';
 import {
   findConversation,
   findConversationsByUserId,
@@ -6,6 +6,7 @@ import {
   findUserIdByUsername,
   findUsersLikeUsername,
   insertMessage,
+  findUsernameById,
 } from './queries';
 
 import dotenv = require('dotenv');
@@ -16,19 +17,21 @@ import { IFindUsersLikeUsernameResult } from './queries/findUsers.queries';
 
 dotenv.config();
 
-let pool: Pool;
-// check if deployment has remote DB URI,
-// otherwise connect to local DB using environment variables
-if (process.env.DATABASE_URL) {
-  pool = new Pool({
-    connectionString: process.env.DATABASE_URL,
-    ssl: {
-      rejectUnauthorized: false,
-    },
-  });
-} else {
-  pool = new Pool({ host: process.env.DB_HOST || 'db' });
-}
+export const config: ClientConfig = process.env.DATABASE_URL
+  ? {
+      connectionString: process.env.DATABASE_URL,
+      ssl: {
+        rejectUnauthorized: false,
+      },
+    }
+  : {
+      port: Number(process.env.DB_PORT),
+      host: process.env.DB_HOST || 'db',
+      password: process.env.DB_PASSWORD,
+      database: process.env.DATABASE,
+    };
+
+const pool = new Pool(config);
 
 pool.on('error', (err) => {
   console.error('Unexpected error on idle client', err);
@@ -105,6 +108,21 @@ export async function getUserId(username: string): Promise<number> {
   client.release();
 
   return id[0].user_id;
+}
+
+export async function getUsernameById(id: number): Promise<string> {
+  const client = await pool.connect();
+
+  const username = await findUsernameById.run(
+    {
+      user_id: id,
+    },
+    client
+  );
+
+  client.release();
+
+  return username[0].username;
 }
 
 export async function sendMessage(
