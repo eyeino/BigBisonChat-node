@@ -11,8 +11,19 @@ import {
   decodeJwtFromAuthorizationHeader,
   determineEventNameFromUsernames,
 } from '../../util/jwt';
+import {
+  checkJwtMiddleware,
+  corsMiddleware,
+  ignoreFaviconMiddleware,
+} from '../middleware';
 
 const conversationsRouter = express.Router();
+
+conversationsRouter.use(
+  corsMiddleware,
+  ignoreFaviconMiddleware,
+  checkJwtMiddleware
+);
 
 conversationsRouter.get('/', async (req, res) => {
   const userInfo = decodeJwtFromAuthorizationHeader(req.headers.authorization);
@@ -24,11 +35,9 @@ conversationsRouter.get('/', async (req, res) => {
 
     res.json(conversations);
   } catch (err) {
-    await makeUser(
-      userInfo.username,
-      userInfo.sub,
-      userInfo.picture
-    ).catch((err) => console.log(err));
+    await makeUser(userInfo.username, userInfo.sub, userInfo.picture).catch(
+      (err) => console.log(err)
+    );
     res.redirect(req.originalUrl);
   }
 });
