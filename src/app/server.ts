@@ -30,19 +30,12 @@ export async function initServer(): Promise<Server> {
 function initExpressApp() {
   const app = express();
 
-  app.use(express.json());
-  app.use(corsMiddleware);
-  app.use(ignoreFaviconMiddleware);
+  /**
+   * @todo Add back in when frontend uses GraphQL.
+   */
+  // apolloServer.applyMiddleware({ app });
 
-  if (process.env.NODE_ENV === 'production') {
-    // Exclude /ping route from authentication
-    const excludedRoutes = [/\/((?!ping).)*/];
-    app.use(excludedRoutes, checkJwtMiddleware);
-  }
-
-  apolloServer.applyMiddleware({ app });
-
-  app.use('/conversations', corsMiddleware, conversationsRouter);
+  app.use('/conversations', conversationsRouter);
   app.use('/search', searchRouter);
   app.use('/', miscRouter);
 

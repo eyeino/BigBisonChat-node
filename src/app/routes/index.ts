@@ -1,9 +1,24 @@
 import express = require('express');
+import {
+  checkJwtMiddleware,
+  corsMiddleware,
+  ignoreFaviconMiddleware,
+} from '../middleware';
 
 import { conversationsRouter } from './conversations';
 import { searchRouter } from './search';
 
 const miscRouter = express.Router();
+
+miscRouter.use(express.json());
+miscRouter.use(corsMiddleware);
+miscRouter.use(ignoreFaviconMiddleware);
+
+if (process.env.NODE_ENV === 'production') {
+  // Exclude /ping route from authentication
+  const excludedRoutes = [/\/((?!ping).)*/];
+  miscRouter.use(excludedRoutes, checkJwtMiddleware);
+}
 
 miscRouter.get('/ping', (_req, res) => {
   res.sendStatus(200);

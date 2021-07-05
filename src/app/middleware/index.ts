@@ -4,9 +4,10 @@ import { ignoreFaviconMiddleware } from './ignoreFavicon';
 import { checkJwtMiddleware } from './checkJwt';
 
 const corsOptions: cors.CorsOptions = {
-  origin: process.env.PORT
-    ? 'https://chat.bigbison.co'
-    : 'http://localhost:3000',
+  origin:
+    process.env.NODE_ENV === 'production'
+      ? 'https://chat.bigbison.co'
+      : 'http://localhost:3000',
   optionsSuccessStatus: 200,
 };
 
