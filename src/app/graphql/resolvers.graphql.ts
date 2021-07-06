@@ -11,7 +11,7 @@ export const resolvers = {
       const userInfo = decodeJwtFromAuthorizationHeader(
         context.req.headers.authorization
       );
-      const userId = await getUserId(userInfo.username);
+      const userId = await getUserId(userInfo.nickname);
 
       return await getConversation(userId, otherUserId, offset);
     },
@@ -19,7 +19,7 @@ export const resolvers = {
       const userInfo = decodeJwtFromAuthorizationHeader(
         context.req.headers.authorization
       );
-      const userId = await getUserId(userInfo.username);
+      const userId = await getUserId(userInfo.nickname);
 
       return await getConversations(userId);
     },

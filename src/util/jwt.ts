@@ -2,8 +2,8 @@ import jwtDecode from 'jwt-decode';
 
 interface IDecodedJwt {
   sub: string;
-  username: string;
   nickname: string;
+  name: string;
   picture: string;
 }
 
@@ -13,7 +13,7 @@ function assertIsJwt(decodedJwt: any): asserts decodedJwt is IDecodedJwt {
     !(
       typeof decodedJwt.sub === 'string' &&
       typeof decodedJwt.nickname === 'string' &&
-      typeof decodedJwt.username === 'string' &&
+      typeof decodedJwt.name === 'string' &&
       typeof decodedJwt.picture === 'string'
     )
   ) {
@@ -36,7 +36,7 @@ export function decodeJwtFromAuthorizationHeader(
     // requiring a login when developing on local
     return {
       sub: 'rodrigo',
-      username: 'rodrigo',
+      name: 'rodrigo@hotmail.com',
       picture: '',
       nickname: 'rodrigo',
     };

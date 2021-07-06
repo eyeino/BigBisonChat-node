@@ -57,13 +57,13 @@ function setupSocketIO(server: Server) {
         }
       ) => {
         try {
-          const { username } = decodeJwtFromAuthorizationHeader(
+          const { nickname } = decodeJwtFromAuthorizationHeader(
             socket.handshake.auth.token ?? ''
           );
 
           if (
             [payload.recipient_username, payload.sender_username].includes(
-              username
+              nickname
             )
           ) {
             socket.emit(eventName, payload);
