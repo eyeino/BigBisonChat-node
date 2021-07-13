@@ -1,6 +1,10 @@
 import type { Server } from 'http';
 
 export function setupGracefulShutdown(server: Server): void {
+  process.on('unhandledRejection', (reason) => {
+    console.log('Unhandled Rejection at:', reason);
+  });
+
   process.on('SIGTERM', () => {
     console.log('SIGTERM signal received: closing HTTP server');
     server.close(() => {
