@@ -1,4 +1,5 @@
 # BigBisonChat
+[![Open in Visual Studio Code](https://open.vscode.dev/badges/open-in-vscode.svg)](https://open.vscode.dev/iannotian/BigBisonChat)
 
 This is the backend for BigBisonChat. Please see the README for the [web client](https://github.com/eyeino/BigBisonChat-React) to learn about the frontend.
 
