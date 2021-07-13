@@ -10,12 +10,13 @@
     "lint": "eslint src/**/*.ts",
     "format": "prettier --write src/**/*",
     "generate:types": "npx pgtyped -c pgtyped.config.json",
-    "migrate": "node-pg-migrate --migration-file-language=ts --config-file=.env --migrations-dir=src/database/migrations --tsconfig=tsconfig.json",
-    "migrate:create": "npm run migrate -- create",
-    "migrate:apply": "npm run migrate -- up",
-    "migrate:revert": "npm run migrate -- down",
-    "migrate:swap": "npm run migrate -- down && npm run migrate -- up",
-    "heroku-postbuild": "npm run build && node-pg-migrate --migration-file-language=js --migrations-dir=dist/database/migrations --database-url-var=DATABASE_URL --reject-unauthorized=false up"
+    "migrate:local": "node-pg-migrate --migration-file-language=ts --config-file=.env --migrations-dir=src/database/migrations --tsconfig=tsconfig.json",
+    "migrate:heroku": "node-pg-migrate --migration-file-language=js --migrations-dir=dist/database/migrations --database-url-var=DATABASE_URL --reject-unauthorized=false up",
+    "migrate:create": "npm run migrate:local -- create",
+    "migrate:apply": "npm run migrate:local -- up",
+    "migrate:revert": "npm run migrate:local -- down",
+    "migrate:swap": "npm run migrate:local -- down && npm run migrate:local -- up",
+    "heroku-postbuild": "npm run build && npm run migrate:heroku"
   },
   "dependencies": {
     "@pgtyped/cli": "^0.11.0",
@@ -42,7 +43,6 @@
     "@typescript-eslint/eslint-plugin": "^4.28.1",
     "@typescript-eslint/parser": "^4.28.1",
     "eslint": "^7.30.0",
-    "eslint-config-airbnb-base": "^14.2.1",
     "eslint-plugin-import": "^2.23.4",
     "node-pg-migrate": "^5.10.0",
     "nodemon": "^2.0.9",
