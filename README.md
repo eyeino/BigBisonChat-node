@@ -5,7 +5,7 @@ This is the backend for BigBisonChat. Please see the README for the [web client]
 
 ## Development
 
-_Prerequisites: Docker 3.x, Docker Compose, npm_
+_Prerequisites: Docker 3.x, Docker Compose, npm_ |
 _Recommended: Volta for NPM version management_
 
 This process will build you an app container with hot reloading and a local, seeded Postgres instance.
