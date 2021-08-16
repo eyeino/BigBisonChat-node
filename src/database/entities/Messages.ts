@@ -1,8 +1,17 @@
-import { Entity, ManyToOne, PrimaryKey, Property } from '@mikro-orm/core';
+import {
+  Entity,
+  EntityRepositoryType,
+  ManyToOne,
+  PrimaryKey,
+  Property,
+} from '@mikro-orm/core';
+import { MessagesRepository } from '../repositories/messages.repository';
 import { Users } from './Users';
 
 @Entity()
 export class Messages {
+  [EntityRepositoryType]?: MessagesRepository;
+
   @PrimaryKey()
   messageId!: number;
 
