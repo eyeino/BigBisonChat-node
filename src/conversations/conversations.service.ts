@@ -63,6 +63,10 @@ export class ConversationsService {
     messageBody: string
   ): Promise<void> {
     try {
+      if (typeof messageBody !== 'string') {
+        throw new Error('messageBody is not a string');
+      }
+
       const user = await this.databaseService.usersRepository.findOne({
         username: userInfo.nickname,
       });
