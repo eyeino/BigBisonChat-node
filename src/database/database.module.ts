@@ -1,12 +1,12 @@
+import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { Module } from '@nestjs/common';
 import { DatabaseService } from './database.service';
-import { MessagesRepository } from './repositories/messages.repository';
-import { UsersRepository } from './repositories/users.repository';
-
-const repositories = [MessagesRepository, UsersRepository];
+import { Messages } from './entities/Messages';
+import { Users } from './entities/Users';
 
 @Module({
-  providers: [...repositories, DatabaseService],
+  imports: [MikroOrmModule.forFeature([Messages, Users])],
+  providers: [DatabaseService],
   exports: [DatabaseService],
 })
 export class DatabaseModule {}

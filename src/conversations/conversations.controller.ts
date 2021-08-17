@@ -1,12 +1,13 @@
 import {
   Controller,
   Get,
-  Headers,
   Post,
   Query,
   Param,
   Body,
+  Headers,
 } from '@nestjs/common';
+import { Messages } from '../database/entities/Messages';
 import { IFindConversationResult } from '../database/queries/conversation.queries';
 import { IFindConversationsByUserIdResult } from '../database/queries/conversations.queries';
 import { decodeJwtFromAuthorizationHeader } from '../util/jwt';
@@ -17,9 +18,9 @@ export class ConversationsController {
   constructor(private readonly conversationsService: ConversationsService) {}
 
   @Get()
-  async getConversations(): // @Headers('Authorization') authorization: string
-  Promise<IFindConversationsByUserIdResult[] | undefined> {
-    const authorization = '';
+  async getConversations(
+    @Headers('Authorization') authorization: string
+  ): Promise<IFindConversationsByUserIdResult[] | undefined> {
     const userInfo = decodeJwtFromAuthorizationHeader(authorization);
 
     return this.conversationsService.getConversations(userInfo);
@@ -27,11 +28,10 @@ export class ConversationsController {
 
   @Get('/:username')
   async getMessages(
-    // @Headers('Authorization') authorization: string,
+    @Headers('Authorization') authorization: string,
     @Param('username') username: string,
     @Query('offset') offset: number
-  ): Promise<IFindConversationResult[] | undefined> {
-    const authorization = '';
+  ): Promise<Messages[] | undefined> {
     const userInfo = decodeJwtFromAuthorizationHeader(authorization);
 
     return this.conversationsService.getMessages(userInfo, username, offset);
@@ -39,11 +39,10 @@ export class ConversationsController {
 
   @Post('/:username')
   async sendMessage(
-    // @Headers('Authorization') authorization: string,
+    @Headers('Authorization') authorization: string,
     @Body() body: { messageBody: string },
     @Param('username') username: string
   ): Promise<void> {
-    const authorization = '';
     const userInfo = decodeJwtFromAuthorizationHeader(authorization);
 
     return this.conversationsService.sendMessage(

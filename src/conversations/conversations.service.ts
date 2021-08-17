@@ -1,28 +1,13 @@
 import { Injectable } from '@nestjs/common';
-import { em } from '../common';
-import { getConversation, getConversations, sendMessage } from '../database';
+import { getConversations } from '../database';
 import { DatabaseService } from '../database/database.service';
-import { IFindConversationResult } from '../database/queries/conversation.queries';
+import { Messages } from '../database/entities/Messages';
 import { IFindConversationsByUserIdResult } from '../database/queries/conversations.queries';
-import { determineEventNameFromUsernames, IDecodedJwt } from '../util/jwt';
+import { IDecodedJwt } from '../util/jwt';
 
 @Injectable()
 export class ConversationsService {
   constructor(private readonly databaseService: DatabaseService) {}
-
-  // async getConversations(
-  //   userInfo: IDecodedJwt
-  // ): Promise<IFindConversationsByUserIdResult[] | undefined> {
-  //   try {
-  //     await makeUser(userInfo.nickname, userInfo.sub, userInfo.picture);
-  //     const userId = await getUserId(userInfo.nickname);
-  //     const conversations = await getConversations(userId);
-
-  //     return conversations;
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // }
 
   async getConversations(
     userInfo: IDecodedJwt
@@ -45,23 +30,12 @@ export class ConversationsService {
     }
   }
 
-  // async getMessages(
-  //   userInfo: IDecodedJwt,
-  //   username: string,
-  //   offset: number
-  // ): Promise<IFindConversationResult[]> {
-  //   const userId = await getUserId(userInfo.nickname);
-
-  //   const otherUserId = await getUserId(username);
-
-  //   return await getConversation(userId, otherUserId, offset);
-  // }
-
   async getMessages(
     userInfo: IDecodedJwt,
     username: string,
-    offset: number
-  ): Promise<IFindConversationResult[] | undefined> {
+    offset = 0,
+    limit = 20
+  ): Promise<Messages[] | undefined> {
     const user = await this.databaseService.usersRepository.findOne({
       username: userInfo.nickname,
     });
@@ -71,38 +45,17 @@ export class ConversationsService {
     });
 
     if (user && otherUser) {
-      /**
-       * @todo use mikro orm here instead of generated query
-       */
-      return await getConversation(user.userId, otherUser.userId, offset);
+      return await this.databaseService.messagesRepository.find(
+        {
+          $or: [
+            { sender: user.userId, recipient: otherUser.userId },
+            { sender: otherUser.userId, recipient: user.userId },
+          ],
+        },
+        { offset, limit }
+      );
     }
   }
-
-  // async sendMessage(
-  //   userInfo: IDecodedJwt,
-  //   username: string,
-  //   messageBody: string
-  // ): Promise<void> {
-  //   try {
-  //     const userId = await getUserId(userInfo.nickname);
-  //     const otherUserId = await getUserId(username);
-
-  //     const insertedMessage = await sendMessage(
-  //       userId,
-  //       otherUserId,
-  //       messageBody
-  //     );
-
-  //     const eventName = determineEventNameFromUsernames(
-  //       userInfo.nickname,
-  //       username
-  //     );
-
-  //     em.emit('post', eventName, insertedMessage);
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // }
 
   async sendMessage(
     userInfo: IDecodedJwt,
@@ -122,18 +75,13 @@ export class ConversationsService {
         return;
       }
 
-      const insertedMessage = await sendMessage(
-        user.userId,
-        otherUser.userId,
-        messageBody
-      );
+      const createdMessage = this.databaseService.messagesRepository.create({
+        sender: user.userId,
+        recipient: otherUser.userId,
+        body: messageBody,
+      });
 
-      const eventName = determineEventNameFromUsernames(
-        userInfo.nickname,
-        username
-      );
-
-      em.emit('post', eventName, insertedMessage);
+      this.databaseService.messagesRepository.persistAndFlush(createdMessage);
     } catch (error) {
       console.log(error);
     }

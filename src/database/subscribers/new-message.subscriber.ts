@@ -1,5 +1,4 @@
 import createSubscriber, { Subscriber } from 'pg-listen';
-import { Server as SocketServer, Socket } from 'socket.io';
 import { config } from '..';
 import { em, EmittableEvents } from '../../common';
 
