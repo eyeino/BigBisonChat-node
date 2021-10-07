@@ -8,7 +8,6 @@ import {
   Headers,
 } from '@nestjs/common';
 import { Messages } from '../database/entities/Messages';
-import { IFindConversationResult } from '../database/queries/conversation.queries';
 import { IFindConversationsByUserIdResult } from '../database/queries/conversations.queries';
 import { decodeJwtFromAuthorizationHeader } from '../util/jwt';
 import { ConversationsService } from './conversations.service';
