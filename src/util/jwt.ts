@@ -1,6 +1,6 @@
 import jwtDecode from 'jwt-decode';
 
-interface IDecodedJwt {
+export interface IDecodedJwt {
   sub: string;
   nickname: string;
   name: string;

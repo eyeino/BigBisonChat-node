@@ -6,7 +6,10 @@
     "rootDir": "src",
     "module": "CommonJS",
     "strict": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "esModuleInterop": true
   },
   "include": ["src"]
 }
