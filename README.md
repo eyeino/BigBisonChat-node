@@ -1,4 +1,5 @@
 # BigBisonChat
+
 [![Open in Visual Studio Code](https://open.vscode.dev/badges/open-in-vscode.svg)](https://open.vscode.dev/iannotian/BigBisonChat)
 
 This is the backend for BigBisonChat. Please see the README for the [web client](https://github.com/eyeino/BigBisonChat-React) to learn about the frontend.
@@ -12,7 +13,7 @@ This process will build you an app container with hot reloading and a local, see
 
 - Clone this repo.
 - Duplicate the example `*.env.example` files and rename them to get plain `*.env` files. You should have `.env` in the root folder, and `db.env` in `docker/db`.
-- Run `npm i` and then `docker compose up` in the root folder of this project.
+- Run `make bbc-start` in the root folder of this project.
 - Access the endpoint at `localhost:8080` or query the database at `localhost:5432`.
 
 ### Database changes

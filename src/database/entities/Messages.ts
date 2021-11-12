@@ -1,15 +1,16 @@
 import {
   Entity,
   EntityRepositoryType,
+  Index,
   ManyToOne,
   PrimaryKey,
   Property,
 } from '@mikro-orm/core';
 import { MessagesRepository } from '../repositories/messages.repository';
-import { Users } from './Users';
+import { User } from './Users';
 
-@Entity()
-export class Messages {
+@Entity({ tableName: 'messages' })
+export class Message {
   [EntityRepositoryType]?: MessagesRepository;
 
   @PrimaryKey()
@@ -26,9 +27,11 @@ export class Messages {
   @Property({ length: 6000, nullable: true })
   body?: string;
 
-  @ManyToOne({ entity: () => Users, fieldName: 'sender', nullable: true })
-  sender?: Users;
+  @Index({ name: 'Index_message-sender' })
+  @ManyToOne({ entity: () => User, fieldName: 'sender', nullable: true })
+  sender?: User;
 
-  @ManyToOne({ entity: () => Users, fieldName: 'recipient', nullable: true })
-  recipient?: Users;
+  @Index({ name: 'Index_message-recipient' })
+  @ManyToOne({ entity: () => User, fieldName: 'recipient', nullable: true })
+  recipient?: User;
 }

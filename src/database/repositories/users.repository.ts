@@ -1,14 +1,14 @@
 import { Repository } from '@mikro-orm/core';
 import { EntityRepository } from '@mikro-orm/postgresql';
-import { Users } from '../entities/Users';
+import { User } from '../entities/Users';
 
-@Repository(Users)
-export class UsersRepository extends EntityRepository<Users> {
+@Repository(User)
+export class UsersRepository extends EntityRepository<User> {
   async makeUser(
     nickname: string,
     sub: string,
     picture: string
-  ): Promise<Users> {
+  ): Promise<User> {
     const createdUser = this.create({
       username: nickname,
       openIdSub: sub,

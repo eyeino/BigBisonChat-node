@@ -7,7 +7,7 @@ import {
   Body,
   Headers,
 } from '@nestjs/common';
-import { Messages } from '../database/entities/Messages';
+import { Message } from '../database/entities/Messages';
 import { IFindConversationsByUserIdResult } from '../database/queries/conversations.queries';
 import { decodeJwtFromAuthorizationHeader } from '../util/jwt';
 import { ConversationsService } from './conversations.service';
@@ -30,7 +30,7 @@ export class ConversationsController {
     @Headers('Authorization') authorization: string,
     @Param('username') username: string,
     @Query('offset') offset: number
-  ): Promise<Messages[] | undefined> {
+  ): Promise<Message[] | undefined> {
     const userInfo = decodeJwtFromAuthorizationHeader(authorization);
 
     return this.conversationsService.getMessages(userInfo, username, offset);

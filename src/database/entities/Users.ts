@@ -7,8 +7,8 @@ import {
 } from '@mikro-orm/core';
 import { UsersRepository } from '../repositories/users.repository';
 
-@Entity()
-export class Users {
+@Entity({ tableName: 'users' })
+export class User {
   [EntityRepositoryType]?: UsersRepository;
 
   @PrimaryKey()

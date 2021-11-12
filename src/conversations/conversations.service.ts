@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { getConversations } from '../database';
 import { DatabaseService } from '../database/database.service';
-import { Messages } from '../database/entities/Messages';
+import { Message } from '../database/entities/Messages';
 import { IFindConversationsByUserIdResult } from '../database/queries/conversations.queries';
 import { IDecodedJwt } from '../util/jwt';
 
@@ -35,7 +35,7 @@ export class ConversationsService {
     username: string,
     offset = 0,
     limit = 20
-  ): Promise<Messages[] | undefined> {
+  ): Promise<Message[] | undefined> {
     const user = await this.databaseService.usersRepository.findOne({
       username: userInfo.nickname,
     });

@@ -1,28 +1,32 @@
 {
   "name": "bigbisonchat-node",
   "version": "1.0.0",
-  "main": "dist/main.js",
+  "main": "dist/main-nest.js",
   "scripts": {
     "build": "tsc --build",
     "prestart": "tsc --build",
-    "start": "node dist/main.js",
+    "start": "node dist/main-nest.js",
     "start:nest": "nodemon src/main-nest.ts",
-    "start:dev": "nodemon src/main.ts",
+    "start:dev": "nodemon --exec \"node --inspect=0.0.0.0:9229 -r ts-node/register src/main-nest.ts\"",
     "lint": "eslint src/**/*.ts",
     "format": "prettier --write src/**/*",
     "test": "jest",
-    "generate:types": "npx pgtyped -c pgtyped.config.json",
-    "migrate:local": "node-pg-migrate --migration-file-language=ts --config-file=.env --migrations-dir=src/database/migrations --tsconfig=tsconfig.json",
-    "migrate:heroku": "node-pg-migrate --migration-file-language=js --migrations-dir=dist/database/migrations --database-url-var=DATABASE_URL --reject-unauthorized=false up",
-    "migrate:create": "npm run migrate:local -- create",
-    "migrate:apply": "npm run migrate:local -- up",
-    "migrate:revert": "npm run migrate:local -- down",
-    "migrate:swap": "npm run migrate:local -- down && npm run migrate:local -- up",
-    "heroku-postbuild": "npm run build && npm run migrate:heroku"
+    "migrate:create": "mikro-orm migration:create",
+    "migrate:apply": "mikro-orm migration:up",
+    "migrate:revert": "mikro-orm migration:down",
+    "migrate:heroku": "mikro-orm migration:up",
+    "heroku-postbuild": "npm run build && npm run migrate:heroku",
+    "generate-legacy:types": "npx pgtyped -c pgtyped.config.json",
+    "migrate-legacy:local": "node-pg-migrate --migration-file-language=ts --config-file=.env --migrations-dir=src/database/migrations --tsconfig=tsconfig.json",
+    "migrate-legacy:heroku": "node-pg-migrate --migration-file-language=js --migrations-dir=dist/database/migrations --database-url-var=DATABASE_URL --reject-unauthorized=false up",
+    "migrate-legacy:create": "npm run migrate-legacy:local -- create",
+    "migrate-legacy:apply": "npm run migrate-legacy:local -- up",
+    "migrate-legacy:revert": "npm run migrate-legacy:local -- down",
+    "migrate-legacy:swap": "npm run migrate-legacy:local -- down && npm run migrate-legacy:local -- up"
   },
   "dependencies": {
-    "@mikro-orm/core": "^4.5.7",
-    "@mikro-orm/nestjs": "^4.2.0",
+    "@mikro-orm/core": "^4.5.9",
+    "@mikro-orm/nestjs": "^4.3.0",
     "@mikro-orm/postgresql": "^4.5.7",
     "@nestjs/common": "^7.6.18",
     "@nestjs/core": "^7.6.18",
@@ -44,12 +48,12 @@
   },
   "author": "iannotian",
   "devDependencies": {
-    "@mikro-orm/cli": "^4.5.7",
+    "@mikro-orm/cli": "4.5",
     "@pgtyped/cli": "^0.11.0",
     "@types/cors": "^2.8.12",
     "@types/express": "^4.17.13",
     "@types/jest": "^27.0.1",
-    "@types/node": "16.3",
+    "@types/node": "^16.11.0",
     "@types/pg": "^8.6.1",
     "@typescript-eslint/eslint-plugin": "^4.28.3",
     "@typescript-eslint/parser": "^4.28.3",
@@ -58,16 +62,22 @@
     "jest": "^27.0.6",
     "node-pg-migrate": "^5.10.0",
     "nodemon": "^2.0.12",
-    "ts-node": "^10.1.0",
-    "typescript": "^4.3.5"
-  },
-  "volta": {
-    "node": "16.10.0"
+    "ts-node": "^10.3.0",
+    "typescript": "^4.4.4"
   },
   "engines": {
     "node": "16.x"
   },
   "repository": {
     "url": "https://github.com/iannotian/BigBisonChat"
+  },
+  "volta": {
+    "node": "16.11.1"
+  },
+  "mikro-orm": {
+    "useTsNode": true,
+    "configPaths": [
+      "./src/database/mikro-orm.config.ts"
+    ]
   }
 }

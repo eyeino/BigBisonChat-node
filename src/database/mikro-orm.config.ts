@@ -1,10 +1,14 @@
-import { Messages } from './entities/Messages';
-import { Users } from './entities/Users';
+import { MikroOrmModuleOptions } from '@mikro-orm/nestjs';
+import { Message } from './entities/Messages';
+import { User } from './entities/Users';
 
 export default {
-  entities: [Messages, Users],
+  entities: [Message, User],
   type: 'postgresql',
   dbName: 'bigbisonchat',
   user: 'ian',
   password: 'daphne',
-};
+  driverOptions: {
+    connection: { ssl: { rejectUnauthorized: false } },
+  },
+} as MikroOrmModuleOptions;

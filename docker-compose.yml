@@ -1,4 +1,4 @@
-version: "3"
+version: '3'
 services:
   app:
     build:
@@ -7,13 +7,14 @@ services:
     volumes:
       - .:/app/
     ports:
-      - "8080:8080"
+      - '8080:8080'
+      - '9229:9229'
     depends_on:
       - db
   db:
     build: ./docker/db
     ports:
-      - "5432:5432"
+      - '5432:5432'
     env_file:
       - ./docker/db/db.env
     volumes:
