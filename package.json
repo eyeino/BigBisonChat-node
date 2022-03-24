@@ -1,13 +1,13 @@
 {
   "name": "bigbisonchat-node",
   "version": "1.0.0",
-  "main": "dist/main-nest.js",
+  "main": "dist/main.js",
   "scripts": {
     "build": "tsc --build",
     "prestart": "tsc --build",
-    "start": "node dist/main-nest.js",
+    "start": "node dist/main.js",
     "start:nest": "nodemon src/main-nest.ts",
-    "start:dev": "nodemon --exec \"node --inspect=0.0.0.0:9229 -r ts-node/register src/main-nest.ts\"",
+    "start:dev": "nodemon --exec \"node --inspect=0.0.0.0:9229 -r ts-node/register src/main.ts\"",
     "lint": "eslint src/**/*.ts",
     "format": "prettier --write src/**/*",
     "test": "jest",

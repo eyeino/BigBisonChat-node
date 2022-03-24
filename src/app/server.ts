@@ -36,7 +36,7 @@ function initExpressApp() {
   return app;
 }
 
-function setupSocketIO(server: Server) {
+export function setupSocketIO(server: Server): SocketServer {
   const io = new SocketServer(server, {
     cors: {
       origin:
