@@ -14,7 +14,7 @@
     "migrate:create": "mikro-orm migration:create",
     "migrate:apply": "mikro-orm migration:up",
     "migrate:revert": "mikro-orm migration:down",
-    "migrate:heroku": "mikro-orm migration:up",
+    "migrate:heroku": "",
     "heroku-postbuild": "npm run build && npm run migrate:heroku",
     "generate-legacy:types": "npx pgtyped -c pgtyped.config.json",
     "migrate-legacy:local": "node-pg-migrate --migration-file-language=ts --config-file=.env --migrations-dir=src/database/migrations --tsconfig=tsconfig.json",
