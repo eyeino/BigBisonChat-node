@@ -1,5 +1,12 @@
 import jwtDecode from 'jwt-decode';
 
+export interface INamespacedDecodedJwt {
+  sub: string;
+  'https://chat.bigbison.co/nickname': string;
+  'https://chat.bigbison.co/name': string;
+  'https://chat.bigbison.co/picture': string;
+}
+
 export interface IDecodedJwt {
   sub: string;
   nickname: string;
@@ -8,13 +15,13 @@ export interface IDecodedJwt {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function assertIsJwt(decodedJwt: any): asserts decodedJwt is IDecodedJwt {
+function assertIsJwt(decodedJwt: any): asserts decodedJwt is INamespacedDecodedJwt {
   if (
     !(
-      typeof decodedJwt.sub === 'string' &&
-      typeof decodedJwt.nickname === 'string' &&
-      typeof decodedJwt.name === 'string' &&
-      typeof decodedJwt.picture === 'string'
+      typeof decodedJwt['sub'] === 'string' &&
+      typeof decodedJwt['https://chat.bigbison.co/nickname'] === 'string' &&
+      typeof decodedJwt['https://chat.bigbison.co/name'] === 'string' &&
+      typeof decodedJwt['https://chat.bigbison.co/picture'] === 'string'
     )
   ) {
     throw {
@@ -31,17 +38,6 @@ export function decodeJwtFromAuthorizationHeader(
     throw new TypeError('Authorization header is undefined');
   }
 
-  if (process.env.NODE_ENV !== 'production') {
-    // Return a default authenticated user instead of
-    // requiring a login when developing on local
-    return {
-      sub: 'rodrigo',
-      name: 'rodrigo@hotmail.com',
-      picture: '',
-      nickname: 'rodrigo',
-    };
-  }
-
   // Tries to parse from 'Bearer <token>' and if that
   // fails, it will assume that the <token> itself
   // was passed in.
@@ -50,7 +46,12 @@ export function decodeJwtFromAuthorizationHeader(
   const decodedJwt = jwtDecode(jwt);
   assertIsJwt(decodedJwt);
 
-  return decodedJwt;
+  return {
+    sub: decodedJwt.sub,
+    name: decodedJwt['https://chat.bigbison.co/name'],
+    nickname: decodedJwt['https://chat.bigbison.co/nickname'],
+    picture: decodedJwt['https://chat.bigbison.co/picture'],
+  };
 }
 
 // create unique and deterministic event name for a conversation

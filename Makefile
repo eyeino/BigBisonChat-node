@@ -4,7 +4,7 @@ bbc-start:
 	docker compose up -d
 
 bbc-build:
-	docker compose up --build -d
+	docker compose up --build --force-recreate -d
 
 app-start:
 	docker compose up app

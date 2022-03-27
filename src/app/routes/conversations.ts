@@ -32,7 +32,9 @@ conversationsRouter.get('/', async (req, res) => {
     const userId = await getUserId(userInfo.nickname);
     const conversations = await getConversations(userId);
 
-    res.json(conversations);
+    console.log({ conversations })
+
+    res.status(200).json(conversations);
   } catch (err) {
     await makeUser(userInfo.nickname, userInfo.sub, userInfo.picture).catch(
       (err) => console.log(err)
