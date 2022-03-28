@@ -9,7 +9,7 @@ const corsMiddleware = (req: express.Request, res: express.Response, next: expre
   let productionOrigin = "https://chat.bigbison.co";
   
   if (req.url.includes('vercel')) {
-    productionOrigin = "";
+    productionOrigin = "https://bigbisonchat.vercel.app";
   }
 
   const corsOptions: cors.CorsOptions = {
