@@ -1,18 +1,18 @@
-import { Repository } from '@mikro-orm/core';
 import { EntityRepository } from '@mikro-orm/postgresql';
 import { Messages } from '../entities/Messages';
+import { Users } from '../entities/Users';
 
-@Repository(Messages)
 export class MessagesRepository extends EntityRepository<Messages> {
   async createMessage(
-    sender: number,
-    recipient: number,
+    sender: Users,
+    recipient: Users,
     body: string
   ): Promise<Messages> {
     const createdMessage = this.create({
       sender,
       recipient,
       body,
+      messageId: 1,
     });
 
     await this.persistAndFlush(createdMessage);

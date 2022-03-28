@@ -1,8 +1,6 @@
-import { Repository } from '@mikro-orm/core';
 import { EntityRepository } from '@mikro-orm/postgresql';
 import { Users } from '../entities/Users';
 
-@Repository(Users)
 export class UsersRepository extends EntityRepository<Users> {
   async makeUser(
     nickname: string,
@@ -13,6 +11,7 @@ export class UsersRepository extends EntityRepository<Users> {
       username: nickname,
       openIdSub: sub,
       avatarUrl: picture,
+      userId: 1,
     });
 
     this.persistAndFlush(createdUser);

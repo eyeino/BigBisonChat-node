@@ -48,8 +48,8 @@ export class ConversationsService {
       return await this.databaseService.messagesRepository.find(
         {
           $or: [
-            { sender: user.userId, recipient: otherUser.userId },
-            { sender: otherUser.userId, recipient: user.userId },
+            { sender: user, recipient: otherUser },
+            { sender: otherUser, recipient: user },
           ],
         },
         { offset, limit }
@@ -80,8 +80,9 @@ export class ConversationsService {
       }
 
       const createdMessage = this.databaseService.messagesRepository.create({
-        sender: user.userId,
-        recipient: otherUser.userId,
+        sender: user,
+        recipient: otherUser,
+        messageId: 1,
         body: messageBody,
       });
 
