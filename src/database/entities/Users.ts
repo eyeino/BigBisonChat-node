@@ -8,7 +8,7 @@ import {
 import { UsersRepository } from '../repositories/users.repository';
 
 @Entity()
-export class Users {
+export class User {
   [EntityRepositoryType]?: UsersRepository;
 
   @PrimaryKey()

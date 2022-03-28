@@ -1,13 +1,13 @@
 import { EntityRepository } from '@mikro-orm/postgresql';
-import { Messages } from '../entities/Messages';
-import { Users } from '../entities/Users';
+import { Message } from '../entities/Messages';
+import { User } from '../entities/Users';
 
-export class MessagesRepository extends EntityRepository<Messages> {
+export class MessagesRepository extends EntityRepository<Message> {
   async createMessage(
-    sender: Users,
-    recipient: Users,
+    sender: User,
+    recipient: User,
     body: string
-  ): Promise<Messages> {
+  ): Promise<Message> {
     const createdMessage = this.create({
       sender,
       recipient,
