@@ -1,4 +1,4 @@
-FROM postgres:13-alpine
+FROM postgres:15-alpine
 WORKDIR /
 EXPOSE 5432
 COPY ./seed/init.sql /docker-entrypoint-initdb.d/

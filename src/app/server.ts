@@ -15,19 +15,14 @@ export async function initServer(): Promise<Server> {
   const server = new Server(expressApp);
 
   setupGracefulShutdown(server);
-  setupSocketIO(server);
-  await setupNewMessageSubscriber();
+  // setupSocketIO(server);
+  // await setupNewMessageSubscriber();
 
   return server;
 }
 
 function initExpressApp() {
   const app = express();
-
-  /**
-   * @todo Add back in when frontend uses GraphQL.
-   */
-  // apolloServer.applyMiddleware({ app });
 
   app.use('/conversations', conversationsRouter);
   app.use('/search', searchRouter);
