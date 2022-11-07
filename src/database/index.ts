@@ -70,6 +70,32 @@ export const createUser = async (
   });
 };
 
+export const getUserById = async (id: string) => {
+  return await prisma.user.findUnique({
+    where: {
+      id,
+    },
+  });
+};
+
+export const getIsUserInRoom = async (
+  user: User,
+  room: Room
+): Promise<boolean> => {
+  const userInRoom = await prisma.user.findFirst({
+    where: {
+      id: user.id,
+      rooms: {
+        some: {
+          id: room.id,
+        },
+      },
+    },
+  });
+
+  return Boolean(userInRoom);
+};
+
 export const addUserToRoom = async (user: User, room: Room) => {
   await prisma.user.update({
     where: { id: user.id },
@@ -92,9 +118,15 @@ export const removeUserFromRoom = async (user: User, room: Room) => {
   });
 };
 
-export const createRoom = async (name?: string) => {
-  return await prisma.room.create({
-    data: {
+export const upsertRoom = async (name?: string, room?: Room) => {
+  return await prisma.room.upsert({
+    where: {
+      id: room?.id,
+    },
+    create: {
+      name,
+    },
+    update: {
       name,
     },
   });

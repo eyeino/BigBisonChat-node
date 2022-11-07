@@ -41,10 +41,10 @@ export function decodeJwtFromAuthorizationHeader(
 ): IDecodedJwt {
   if (process.env.NODE_ENV !== 'production') {
     return {
-      name: 'Ello Mate',
-      nickname: 'eeyeno',
+      name: 'Ello Mate2',
+      nickname: 'zeemo',
       picture: 'http://ello-mate.com/oi.png',
-      sub: '1',
+      sub: '2',
     };
   }
 
