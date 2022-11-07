@@ -2,14 +2,12 @@ import express = require('express');
 import {
   getConversation,
   getConversations,
-  getUserId,
-  makeUser,
-  sendMessage,
+  getUserBySub,
+  getUserByUsername,
+  upsertUser,
+  createMessage,
 } from '../../database';
-import {
-  decodeJwtFromAuthorizationHeader,
-  determineEventNameFromUsernames,
-} from '../../util/jwt';
+import { decodeJwtFromAuthorizationHeader } from '../../util/jwt';
 import {
   checkJwtMiddleware,
   corsMiddleware,
@@ -26,28 +24,26 @@ conversationsRouter.use(ignoreFaviconMiddleware);
 conversationsRouter.get('/', async (req, res) => {
   const userInfo = decodeJwtFromAuthorizationHeader(req.headers.authorization);
 
-  try {
-    await makeUser(userInfo.nickname, userInfo.sub, userInfo.picture);
-    const userId = await getUserId(userInfo.nickname);
-    const conversations = await getConversations(userId);
+  const user = await upsertUser(
+    userInfo.sub,
+    userInfo.nickname,
+    userInfo.picture
+  );
+  const conversations = await getConversations(Number(user.user_id));
 
-    res.json(conversations);
-  } catch (err) {
-    await makeUser(userInfo.nickname, userInfo.sub, userInfo.picture).catch(
-      (err) => console.log(err)
-    );
-    res.redirect(req.originalUrl);
-  }
+  res.json(conversations);
 });
 
 // get list of messages between two users
 conversationsRouter.get('/:username', async (req, res) => {
   const userInfo = decodeJwtFromAuthorizationHeader(req.headers.authorization);
-  const userId = await getUserId(userInfo.nickname);
+  const user = await getUserBySub(userInfo.sub);
+  const otherUser = await getUserByUsername(req.params.username);
 
-  const otherUserId = await getUserId(req.params.username);
-
-  const messages = await getConversation(userId, otherUserId, req.query.offset);
+  const messages = await getConversation(
+    Number(user?.user_id),
+    Number(otherUser?.user_id)
+  );
   res.json(messages);
 });
 
@@ -58,15 +54,14 @@ conversationsRouter.post('/:username', async (req, res) => {
       req.headers.authorization
     );
 
-    const userId = await getUserId(userInfo.nickname);
-    const otherUserId = await getUserId(req.params.username);
+    const user = await getUserBySub(userInfo.sub);
+    const otherUser = await getUserByUsername(req.params.username);
     const messageBody = req.body.messageBody;
 
-    const insertedMessage = await sendMessage(userId, otherUserId, messageBody);
-
-    const eventName = determineEventNameFromUsernames(
-      userInfo.nickname,
-      req.params.username
+    await createMessage(
+      Number(user?.user_id),
+      Number(otherUser?.user_id),
+      messageBody
     );
 
     res.sendStatus(200);

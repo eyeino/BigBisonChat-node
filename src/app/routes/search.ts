@@ -14,7 +14,7 @@ searchRouter.use(checkJwtMiddleware);
 searchRouter.use(ignoreFaviconMiddleware);
 
 searchRouter.get('/users/:query', async (req, res) => {
-  const usernameResults = await searchUsers(req.params.query + '%');
+  const usernameResults = await searchUsers(req.params.query);
   res.json(usernameResults);
 });
 
