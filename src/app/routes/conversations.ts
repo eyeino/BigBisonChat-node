@@ -1,5 +1,4 @@
 import express = require('express');
-import { em } from '../../common';
 import {
   getConversation,
   getConversations,
@@ -69,8 +68,6 @@ conversationsRouter.post('/:username', async (req, res) => {
       userInfo.nickname,
       req.params.username
     );
-
-    em.emit('post', eventName, insertedMessage);
 
     res.sendStatus(200);
     return;
