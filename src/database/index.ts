@@ -41,6 +41,73 @@ export const createMessage = async (
   });
 };
 
+export const getUserBySub = async (openIdSub: string) => {
+  return await prisma.user.findUnique({
+    where: {
+      openIdSub,
+    },
+  });
+};
+
+export const createUser = async (
+  openIdSub: string,
+  username: string,
+  avatarUrl?: string
+) => {
+  return await prisma.user.upsert({
+    where: {
+      openIdSub,
+    },
+    create: {
+      openIdSub,
+      username,
+      avatarUrl,
+    },
+    update: {
+      username,
+      avatarUrl,
+    },
+  });
+};
+
+export const addUserToRoom = async (user: User, room: Room) => {
+  await prisma.user.update({
+    where: { id: user.id },
+    data: {
+      rooms: {
+        connect: [{ id: room.id }],
+      },
+    },
+  });
+};
+
+export const removeUserFromRoom = async (user: User, room: Room) => {
+  await prisma.user.update({
+    where: { id: user.id },
+    data: {
+      rooms: {
+        disconnect: [{ id: room.id }],
+      },
+    },
+  });
+};
+
+export const createRoom = async (name?: string) => {
+  return await prisma.room.create({
+    data: {
+      name,
+    },
+  });
+};
+
+export const getRoomById = async (id: string) => {
+  return await prisma.room.findUnique({
+    where: {
+      id,
+    },
+  });
+};
+
 export const findUsersWithUsernameLike = async (
   query: string
 ): Promise<User[]> => {

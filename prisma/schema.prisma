@@ -11,7 +11,7 @@ model Message {
   id        String   @id @default(value: uuid())
   body      String
   room      Room     @relation(fields: [roomId], references: [id])
-  roomId    String   @unique
+  roomId    String
   sender    User     @relation(fields: [senderId], references: [id])
   senderId  String
   createdAt DateTime @default(value: now()) @db.Timestamptz

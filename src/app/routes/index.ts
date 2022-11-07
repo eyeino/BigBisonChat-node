@@ -5,7 +5,7 @@ import {
   ignoreFaviconMiddleware,
 } from '../middleware';
 
-import { conversationsRouter } from './conversations';
+import { roomsRouter } from './rooms';
 import { searchRouter } from './search';
 
 const miscRouter = express.Router();
@@ -28,4 +28,4 @@ miscRouter.get('*', (_req, res) => {
   res.sendStatus(404);
 });
 
-export { miscRouter, conversationsRouter, searchRouter };
+export { miscRouter, roomsRouter, searchRouter };

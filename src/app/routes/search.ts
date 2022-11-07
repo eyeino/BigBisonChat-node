@@ -1,5 +1,5 @@
 import express = require('express');
-import { searchUsers } from '../../database';
+import { findUsersWithUsernameLike } from '../../database';
 import {
   checkJwtMiddleware,
   corsMiddleware,
@@ -14,7 +14,7 @@ searchRouter.use(checkJwtMiddleware);
 searchRouter.use(ignoreFaviconMiddleware);
 
 searchRouter.get('/users/:query', async (req, res) => {
-  const usernameResults = await searchUsers(req.params.query);
+  const usernameResults = await findUsersWithUsernameLike(req.params.query);
   res.json(usernameResults);
 });
 

@@ -1,7 +1,7 @@
 import express = require('express');
 import { Server } from 'http';
 import { setupGracefulShutdown } from '../util/shutdown';
-import { conversationsRouter, miscRouter, searchRouter } from './routes';
+import { roomsRouter, miscRouter, searchRouter } from './routes';
 
 export async function initServer(): Promise<Server> {
   const expressApp = initExpressApp();
@@ -17,7 +17,7 @@ export async function initServer(): Promise<Server> {
 function initExpressApp() {
   const app = express();
 
-  app.use('/conversations', conversationsRouter);
+  app.use('/rooms', roomsRouter);
   app.use('/search', searchRouter);
   app.use('/', miscRouter);
 

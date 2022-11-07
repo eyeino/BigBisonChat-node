@@ -8,17 +8,19 @@ export interface IDecodedJwt {
 }
 
 export interface INamespacedDecodedJwt {
-  'https://chat.bigbison.co/email': string,
-  'https://chat.bigbison.co/user_id': string,
-  'https://chat.bigbison.co/username': string,
-  'https://chat.bigbison.co/name': string,
-  'https://chat.bigbison.co/nickname': string,
-  'https://chat.bigbison.co/picture': string,
+  'https://chat.bigbison.co/email': string;
+  'https://chat.bigbison.co/user_id': string;
+  'https://chat.bigbison.co/username': string;
+  'https://chat.bigbison.co/name': string;
+  'https://chat.bigbison.co/nickname': string;
+  'https://chat.bigbison.co/picture': string;
   sub: string;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function assertIsJwt(decodedJwt: any): asserts decodedJwt is INamespacedDecodedJwt {
+function assertIsJwt(
+  decodedJwt: any
+): asserts decodedJwt is INamespacedDecodedJwt {
   if (
     !(
       typeof decodedJwt.sub === 'string' &&
@@ -37,6 +39,15 @@ function assertIsJwt(decodedJwt: any): asserts decodedJwt is INamespacedDecodedJ
 export function decodeJwtFromAuthorizationHeader(
   authHeader: string | undefined
 ): IDecodedJwt {
+  if (process.env.NODE_ENV !== 'production') {
+    return {
+      name: 'Ello Mate',
+      nickname: 'eeyeno',
+      picture: 'http://ello-mate.com/oi.png',
+      sub: '1',
+    };
+  }
+
   if (typeof authHeader === 'undefined') {
     throw new TypeError('Authorization header is undefined');
   }
