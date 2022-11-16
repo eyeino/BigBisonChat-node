@@ -8,18 +8,20 @@ datasource db {
 }
 
 model Message {
-  id        String   @id @default(value: uuid())
+  pk        BigInt   @id @default(autoincrement())
+  id        String   @unique @default(value: uuid())
   body      String
-  room      Room     @relation(fields: [roomId], references: [id])
-  roomId    String
-  sender    User     @relation(fields: [senderId], references: [id])
-  senderId  String
+  room      Room     @relation(fields: [roomPk], references: [pk])
+  roomPk    BigInt
+  sender    User     @relation(fields: [senderPk], references: [pk])
+  senderPk  BigInt
   createdAt DateTime @default(value: now()) @db.Timestamptz
   updatedAt DateTime @default(value: now()) @updatedAt @db.Timestamptz
 }
 
 model Room {
-  id        String    @id @default(value: uuid())
+  pk        BigInt    @id @default(autoincrement())
+  id        String    @unique @default(value: uuid())
   name      String?
   members   User[]
   messages  Message[]
@@ -28,7 +30,8 @@ model Room {
 }
 
 model User {
-  id           String    @id @default(value: uuid())
+  pk           BigInt    @id @default(autoincrement())
+  id           String    @unique @default(value: uuid())
   username     String    @unique
   email        String?   @unique
   openIdSub    String?   @unique

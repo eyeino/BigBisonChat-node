@@ -19,7 +19,7 @@ export const getRoomsForUser = async (user: User): Promise<Room[]> => {
 export const getMessagesForRoom = async (room: Room): Promise<Message[]> => {
   return await prisma.message.findMany({
     where: {
-      roomId: room.id,
+      roomPk: room.pk,
     },
     orderBy: {
       createdAt: 'desc',
@@ -35,8 +35,8 @@ export const createMessage = async (
   return await prisma.message.create({
     data: {
       body,
-      senderId: sender.id,
-      roomId: room.id,
+      senderPk: sender.pk,
+      roomPk: room.pk,
     },
   });
 };
@@ -119,14 +119,8 @@ export const removeUserFromRoom = async (user: User, room: Room) => {
 };
 
 export const upsertRoom = async (name?: string, room?: Room) => {
-  return await prisma.room.upsert({
-    where: {
-      id: room?.id,
-    },
-    create: {
-      name,
-    },
-    update: {
+  return await prisma.room.create({
+    data: {
       name,
     },
   });
