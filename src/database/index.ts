@@ -7,8 +7,8 @@ export const getRoomsForUser = async (user: User): Promise<Room[]> => {
     where: {
       members: {
         some: {
-          id: {
-            equals: user.id,
+          pk: {
+            equals: user.pk,
           },
         },
       },
@@ -84,10 +84,10 @@ export const getIsUserInRoom = async (
 ): Promise<boolean> => {
   const userInRoom = await prisma.user.findFirst({
     where: {
-      id: user.id,
+      pk: user.pk,
       rooms: {
         some: {
-          id: room.id,
+          pk: room.pk,
         },
       },
     },
@@ -98,10 +98,10 @@ export const getIsUserInRoom = async (
 
 export const addUserToRoom = async (user: User, room: Room): Promise<void> => {
   await prisma.user.update({
-    where: { id: user.id },
+    where: { pk: user.pk },
     data: {
       rooms: {
-        connect: [{ id: room.id }],
+        connect: [{ pk: room.pk }],
       },
     },
   });
@@ -112,10 +112,10 @@ export const removeUserFromRoom = async (
   room: Room
 ): Promise<void> => {
   await prisma.user.update({
-    where: { id: user.id },
+    where: { pk: user.pk },
     data: {
       rooms: {
-        disconnect: [{ id: room.id }],
+        disconnect: [{ pk: room.pk }],
       },
     },
   });
