@@ -41,7 +41,7 @@ export const createMessage = async (
   });
 };
 
-export const getUserBySub = async (openIdSub: string) => {
+export const getUserBySub = async (openIdSub: string): Promise<User | null> => {
   return await prisma.user.findUnique({
     where: {
       openIdSub,
@@ -53,7 +53,7 @@ export const createUser = async (
   openIdSub: string,
   username: string,
   avatarUrl?: string
-) => {
+): Promise<User> => {
   return await prisma.user.upsert({
     where: {
       openIdSub,
@@ -70,7 +70,7 @@ export const createUser = async (
   });
 };
 
-export const getUserById = async (id: string) => {
+export const getUserById = async (id: string): Promise<User | null> => {
   return await prisma.user.findUnique({
     where: {
       id,
@@ -96,7 +96,7 @@ export const getIsUserInRoom = async (
   return Boolean(userInRoom);
 };
 
-export const addUserToRoom = async (user: User, room: Room) => {
+export const addUserToRoom = async (user: User, room: Room): Promise<void> => {
   await prisma.user.update({
     where: { id: user.id },
     data: {
@@ -107,7 +107,10 @@ export const addUserToRoom = async (user: User, room: Room) => {
   });
 };
 
-export const removeUserFromRoom = async (user: User, room: Room) => {
+export const removeUserFromRoom = async (
+  user: User,
+  room: Room
+): Promise<void> => {
   await prisma.user.update({
     where: { id: user.id },
     data: {
@@ -118,15 +121,26 @@ export const removeUserFromRoom = async (user: User, room: Room) => {
   });
 };
 
-export const upsertRoom = async (name?: string, room?: Room) => {
-  return await prisma.room.create({
+export const upsertRoom = async (name?: string, room?: Room): Promise<Room> => {
+  if (!room) {
+    return await prisma.room.create({
+      data: {
+        name,
+      },
+    });
+  }
+
+  return await prisma.room.update({
     data: {
-      name,
+      name: room.name,
+    },
+    where: {
+      pk: room.pk,
     },
   });
 };
 
-export const getRoomById = async (id: string) => {
+export const getRoomById = async (id: string): Promise<Room | null> => {
   return await prisma.room.findUnique({
     where: {
       id,
