@@ -1,164 +1,157 @@
-import { ClientConfig, Pool } from 'pg';
-import {
-  findConversation,
-  findConversationsByUserId,
-  createUser,
-  findUserIdByUsername,
-  findUsersLikeUsername,
-  insertMessage,
-  findUsernameById,
-} from './queries';
+import { PrismaClient, Message, User, Room } from '@prisma/client';
 
-import dotenv = require('dotenv');
-import { IFindConversationsByUserIdResult } from './queries/conversations.queries';
-import { IFindConversationResult } from './queries/conversation.queries';
-import { IInsertMessageResult } from './queries/insertMessage.queries';
-import { IFindUsersLikeUsernameResult } from './queries/findUsers.queries';
+const prisma = new PrismaClient();
 
-dotenv.config();
-
-export const config: ClientConfig = process.env.DATABASE_URL
-  ? {
-      connectionString: process.env.DATABASE_URL,
-      ssl: {
-        rejectUnauthorized: false,
+export const getRoomsForUser = async (user: User): Promise<Room[]> => {
+  return await prisma.room.findMany({
+    where: {
+      members: {
+        some: {
+          pk: {
+            equals: user.pk,
+          },
+        },
       },
-    }
-  : {
-      port: Number(process.env.DB_PORT),
-      host: process.env.DB_HOST || 'db',
-      password: process.env.DB_PASSWORD,
-      database: process.env.DATABASE,
-    };
-
-const pool = new Pool(config);
-
-pool.on('error', (err) => {
-  console.error('Unexpected error on idle client', err);
-  process.exit(-1);
-});
-
-export async function getConversations(
-  userId: number
-): Promise<IFindConversationsByUserIdResult[]> {
-  const client = await pool.connect();
-
-  const conversations = await findConversationsByUserId.run(
-    {
-      userId,
     },
-    client
-  );
+  });
+};
 
-  client.release();
-
-  return conversations;
-}
-
-export async function getConversation(
-  sender: number,
-  recipient: number,
-  offset = 0
-): Promise<IFindConversationResult[]> {
-  const client = await pool.connect();
-
-  const conversation = await findConversation.run(
-    {
-      sender,
-      recipient,
-      offset,
+export const getMessagesForRoom = async (room: Room): Promise<Message[]> => {
+  return await prisma.message.findMany({
+    where: {
+      roomPk: room.pk,
     },
-    client
-  );
-
-  client.release();
-
-  return conversation;
-}
-
-export async function makeUser(
-  username: string,
-  open_id_sub: string,
-  avatar_url: string
-): Promise<void> {
-  const client = await pool.connect();
-
-  await createUser.run(
-    {
-      username,
-      open_id_sub,
-      avatar_url,
+    orderBy: {
+      createdAt: 'desc',
     },
-    client
-  );
+  });
+};
 
-  client.release();
-}
-
-export async function getUserId(username: string): Promise<number> {
-  const client = await pool.connect();
-
-  const id = await findUserIdByUsername.run(
-    {
-      username,
-    },
-    client
-  );
-
-  client.release();
-
-  return id[0].user_id;
-}
-
-export async function getUsernameById(id: number): Promise<string> {
-  const client = await pool.connect();
-
-  const username = await findUsernameById.run(
-    {
-      user_id: id,
-    },
-    client
-  );
-
-  client.release();
-
-  return username[0].username;
-}
-
-export async function sendMessage(
-  sender: number,
-  recipient: number,
-  body: string
-): Promise<IInsertMessageResult> {
-  const client = await pool.connect();
-
-  const id = await insertMessage.run(
-    {
+export const createMessage = async (
+  body: string,
+  sender: User,
+  room: Room
+): Promise<Message> => {
+  return await prisma.message.create({
+    data: {
       body,
-      recipient,
-      sender,
+      senderPk: sender.pk,
+      roomPk: room.pk,
     },
-    client
-  );
+  });
+};
 
-  client.release();
+export const getUserBySub = async (openIdSub: string): Promise<User | null> => {
+  return await prisma.user.findUnique({
+    where: {
+      openIdSub,
+    },
+  });
+};
 
-  return id[0];
-}
+export const createUser = async (
+  openIdSub: string,
+  username: string,
+  avatarUrl?: string
+): Promise<User> => {
+  return await prisma.user.upsert({
+    where: {
+      openIdSub,
+    },
+    create: {
+      openIdSub,
+      username,
+      avatarUrl,
+    },
+    update: {
+      username,
+      avatarUrl,
+    },
+  });
+};
 
-export async function searchUsers(
+export const getUserById = async (id: string): Promise<User | null> => {
+  return await prisma.user.findUnique({
+    where: {
+      id,
+    },
+  });
+};
+
+export const getIsUserInRoom = async (
+  user: User,
+  room: Room
+): Promise<boolean> => {
+  const userInRoom = await prisma.user.findFirst({
+    where: {
+      pk: user.pk,
+      rooms: {
+        some: {
+          pk: room.pk,
+        },
+      },
+    },
+  });
+
+  return Boolean(userInRoom);
+};
+
+export const addUserToRoom = async (user: User, room: Room): Promise<void> => {
+  await prisma.user.update({
+    where: { pk: user.pk },
+    data: {
+      rooms: {
+        connect: [{ pk: room.pk }],
+      },
+    },
+  });
+};
+
+export const removeUserFromRoom = async (
+  user: User,
+  room: Room
+): Promise<void> => {
+  await prisma.user.update({
+    where: { pk: user.pk },
+    data: {
+      rooms: {
+        disconnect: [{ pk: room.pk }],
+      },
+    },
+  });
+};
+
+export const upsertRoom = async (name?: string, room?: Room): Promise<Room> => {
+  if (!room) {
+    return await prisma.room.create({
+      data: {
+        name,
+      },
+    });
+  }
+
+  return await prisma.room.update({
+    data: {
+      name: room.name,
+    },
+    where: {
+      pk: room.pk,
+    },
+  });
+};
+
+export const getRoomById = async (id: string): Promise<Room | null> => {
+  return await prisma.room.findUnique({
+    where: {
+      id,
+    },
+  });
+};
+
+export const findUsersWithUsernameLike = async (
   query: string
-): Promise<IFindUsersLikeUsernameResult[]> {
-  const client = await pool.connect();
-
-  const results = await findUsersLikeUsername.run(
-    {
-      query,
-    },
-    client
-  );
-
-  client.release();
-
-  return results;
-}
+): Promise<User[]> => {
+  return await prisma.$queryRaw<
+    User[]
+  >`SELECT * FROM User WHERE username LIKE ${query};`;
+};
